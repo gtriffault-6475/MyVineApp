@@ -9,6 +9,7 @@ import { useWineForm } from '@/hooks/useWineForm';
 import { useImagePicker } from '@/hooks/useImagePicker';
 import { wineFormToDb, wineToForm } from '@/types/wine';
 import { colors } from '@/components/ui/tokens';
+import { recognizeWineLabel, getApiKey } from '@/services/wineRecognition';
 
 export default function EditScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -21,6 +22,7 @@ export default function EditScreen() {
   const { form, errors, update, validate } = useWineForm(wine ? wineToForm(wine) : undefined);
   const { pickFromLibrary, pickFromCamera, deletePhoto, toFullUri } = useImagePicker();
   const [submitting, setSubmitting] = useState(false);
+  const [analyzing, setAnalyzing] = useState(false);
 
   if (!wine) {
     return (
@@ -29,6 +31,37 @@ export default function EditScreen() {
       </View>
     );
   }
+
+  const analyzeLabel = async (uri: string) => {
+    const apiKey = await getApiKey();
+    if (!apiKey) return;
+
+    Alert.alert(
+      "Analyser l'étiquette",
+      "Voulez-vous que l'IA remplisse automatiquement les informations du vin ?",
+      [
+        { text: 'Non', style: 'cancel' },
+        {
+          text: 'Oui',
+          onPress: async () => {
+            setAnalyzing(true);
+            try {
+              const result = await recognizeWineLabel(uri);
+              if (result.name) update('name', result.name);
+              if (result.producer) update('producer', result.producer);
+              if (result.appellation) update('appellation', result.appellation);
+              if (result.vintage) update('vintage', result.vintage);
+            } catch (e: unknown) {
+              const msg = e instanceof Error ? e.message : "Analyse impossible.";
+              Alert.alert('Erreur', msg);
+            } finally {
+              setAnalyzing(false);
+            }
+          },
+        },
+      ]
+    );
+  };
 
   const handlePickPhoto = () => {
     Alert.alert("Photo de l'étiquette", 'Choisissez une source', [
@@ -39,6 +72,7 @@ export default function EditScreen() {
           if (uri) {
             if (form.photo_uri) await deletePhoto(form.photo_uri);
             update('photo_uri', uri);
+            analyzeLabel(uri);
           }
         },
       },
@@ -49,6 +83,7 @@ export default function EditScreen() {
           if (uri) {
             if (form.photo_uri) await deletePhoto(form.photo_uri);
             update('photo_uri', uri);
+            analyzeLabel(uri);
           }
         },
       },
@@ -88,8 +123,8 @@ export default function EditScreen() {
       onSubmit={handleSubmit}
       onPickPhoto={handlePickPhoto}
       photoFullUri={toFullUri(form.photo_uri)}
-      submitting={submitting}
-      submitLabel="Enregistrer les modifications"
+      submitting={submitting || analyzing}
+      submitLabel={analyzing ? "Analyse en cours…" : "Enregistrer les modifications"}
     />
   );
 }
