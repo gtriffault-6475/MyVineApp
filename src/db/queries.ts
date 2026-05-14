@@ -1,5 +1,5 @@
 import type { SQLiteDatabase } from 'expo-sqlite';
-import type { Wine, WineStats } from '../types/wine';
+import type { Wine, WineStats, WineSearchFilters } from '../types/wine';
 
 export async function getAllWines(db: SQLiteDatabase): Promise<Wine[]> {
   return db.getAllAsync<Wine>(`SELECT * FROM wines ORDER BY drunk_at DESC, created_at DESC`);
@@ -70,17 +70,63 @@ export async function deleteWine(db: SQLiteDatabase, id: number): Promise<void> 
   await db.runAsync(`DELETE FROM wines WHERE id = ?`, [id]);
 }
 
+const SORT_CLAUSES: Record<WineSearchFilters['sortBy'], string> = {
+  date_desc: 'drunk_at DESC, created_at DESC',
+  date_asc: 'drunk_at ASC, created_at ASC',
+  score_desc: 'score DESC, drunk_at DESC',
+  score_asc: 'score ASC, drunk_at DESC',
+  name_asc: 'name ASC',
+  vintage_desc: 'vintage DESC, drunk_at DESC',
+};
+
 export async function searchWines(
   db: SQLiteDatabase,
-  term: string,
-  buyAgainOnly: boolean
+  filters: WineSearchFilters
 ): Promise<Wine[]> {
-  const like = `%${term}%`;
-  const base = `SELECT * FROM wines WHERE
-    (name LIKE ? OR producer LIKE ? OR appellation LIKE ? OR restaurant_name LIKE ?)
-    ${buyAgainOnly ? 'AND buy_again = 1' : ''}
-    ORDER BY drunk_at DESC, created_at DESC`;
-  return db.getAllAsync<Wine>(base, [like, like, like, like]);
+  const conditions: string[] = [];
+  const params: (string | number)[] = [];
+
+  if (filters.term.trim()) {
+    const like = `%${filters.term.trim()}%`;
+    conditions.push(
+      '(name LIKE ? OR producer LIKE ? OR appellation LIKE ? OR restaurant_name LIKE ? OR food_pairing LIKE ?)'
+    );
+    params.push(like, like, like, like, like);
+  }
+
+  if (filters.buyAgainOnly) {
+    conditions.push('buy_again = 1');
+  }
+
+  if (filters.locationType) {
+    conditions.push('location_type = ?');
+    params.push(filters.locationType);
+  }
+
+  if (filters.scoreMin !== null) {
+    conditions.push('score >= ?');
+    params.push(filters.scoreMin);
+  }
+
+  if (filters.scoreMax !== null) {
+    conditions.push('score <= ?');
+    params.push(filters.scoreMax);
+  }
+
+  if (filters.dateFrom) {
+    conditions.push('drunk_at >= ?');
+    params.push(filters.dateFrom);
+  }
+
+  if (filters.dateTo) {
+    conditions.push('drunk_at <= ?');
+    params.push(filters.dateTo);
+  }
+
+  const where = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
+  const order = SORT_CLAUSES[filters.sortBy];
+
+  return db.getAllAsync<Wine>(`SELECT * FROM wines ${where} ORDER BY ${order}`, params);
 }
 
 export async function getStats(db: SQLiteDatabase): Promise<WineStats> {

@@ -1,5 +1,35 @@
 export type LocationType = 'home' | 'friend' | 'restaurant';
 
+export type WineSortOption =
+  | 'date_desc'
+  | 'date_asc'
+  | 'score_desc'
+  | 'score_asc'
+  | 'name_asc'
+  | 'vintage_desc';
+
+export interface WineSearchFilters {
+  term: string;
+  buyAgainOnly: boolean;
+  locationType: LocationType | null;
+  scoreMin: number | null;
+  scoreMax: number | null;
+  dateFrom: string | null;
+  dateTo: string | null;
+  sortBy: WineSortOption;
+}
+
+export const DEFAULT_FILTERS: WineSearchFilters = {
+  term: '',
+  buyAgainOnly: false,
+  locationType: null,
+  scoreMin: null,
+  scoreMax: null,
+  dateFrom: null,
+  dateTo: null,
+  sortBy: 'date_desc',
+};
+
 export interface Wine {
   id: number;
   name: string;
