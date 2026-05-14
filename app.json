@@ -1,0 +1,50 @@
+{
+  "expo": {
+    "name": "MyVine",
+    "slug": "myvineapp",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#FFFFFF"
+    },
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.myvineapp",
+      "infoPlist": {
+        "NSCameraUsageDescription": "Pour photographier les étiquettes de vin",
+        "NSPhotoLibraryUsageDescription": "Pour choisir une photo d'étiquette de vin"
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#FFFFFF"
+      },
+      "package": "com.myvineapp",
+      "permissions": [
+        "CAMERA",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE"
+      ]
+    },
+    "plugins": [
+      "expo-router",
+      "expo-sqlite",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Pour choisir une photo d'étiquette de vin",
+          "cameraPermission": "Pour photographier les étiquettes de vin"
+        }
+      ]
+    ],
+    "scheme": "myvineapp",
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
