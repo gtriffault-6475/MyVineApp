@@ -1,18 +1,9 @@
 import React from 'react';
 import { Text } from 'react-native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { createNativeStackNavigator, NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import {
-  useNavigation,
-  useRoute,
-  NavigatorScreenParams,
-} from '@react-navigation/native';
-import type {
-  NativeStackNavigationProp,
-  NativeStackScreenProps,
-} from '@react-navigation/native-stack';
-import type { RouteProp, CompositeNavigationProp } from '@react-navigation/native';
-import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
+import { useNavigation, useRoute, NavigatorScreenParams, RouteProp } from '@react-navigation/native';
+import { colors } from '@/components/ui/tokens';
 
 import { CellarScreen } from '@/screens/CellarScreen';
 import { SearchScreen } from '@/screens/SearchScreen';
@@ -21,9 +12,8 @@ import { SettingsScreen } from '@/screens/SettingsScreen';
 import { WineDetailScreen } from '@/screens/WineDetailScreen';
 import { WineEditScreen } from '@/screens/WineEditScreen';
 import { AddScreen } from '@/screens/AddScreen';
-import { colors } from '@/components/ui/tokens';
 
-// ─── Param lists ────────────────────────────────────────────────────────────
+// ─── Param lists ─────────────────────────────────────────────────────────────
 
 export type MainTabParamList = {
   CellarTab: undefined;
@@ -39,17 +29,12 @@ export type RootStackParamList = {
   AddWine: undefined;
 };
 
-// ─── Typed navigation hooks ──────────────────────────────────────────────────
+// ─── Navigators ──────────────────────────────────────────────────────────────
 
-export function useAppNavigation() {
-  return useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-}
+const RootStack = createNativeStackNavigator<RootStackParamList>();
+const Tab = createBottomTabNavigator<MainTabParamList>();
 
-export function useAppRoute<RouteName extends keyof RootStackParamList>() {
-  return useRoute<RouteProp<RootStackParamList, RouteName>>();
-}
-
-// ─── Tab icon helper ─────────────────────────────────────────────────────────
+// ─── Tab icon ─────────────────────────────────────────────────────────────────
 
 function TabIcon({ emoji, focused }: { emoji: string; focused: boolean }) {
   return (
@@ -59,11 +44,9 @@ function TabIcon({ emoji, focused }: { emoji: string; focused: boolean }) {
   );
 }
 
-// ─── Bottom tab navigator ─────────────────────────────────────────────────────
+// ─── Tab navigator ────────────────────────────────────────────────────────────
 
-const Tab = createBottomTabNavigator<MainTabParamList>();
-
-function MainTabs() {
+function MainTabNavigator() {
   return (
     <Tab.Navigator
       screenOptions={{
@@ -120,13 +103,11 @@ function MainTabs() {
   );
 }
 
-// ─── Root stack navigator ─────────────────────────────────────────────────────
-
-const Stack = createNativeStackNavigator<RootStackParamList>();
+// ─── Root navigator ───────────────────────────────────────────────────────────
 
 export function RootNavigator() {
   return (
-    <Stack.Navigator
+    <RootStack.Navigator
       screenOptions={{
         headerStyle: { backgroundColor: colors.white },
         headerShadowVisible: false,
@@ -135,22 +116,22 @@ export function RootNavigator() {
         contentStyle: { backgroundColor: colors.white },
       }}
     >
-      <Stack.Screen
+      <RootStack.Screen
         name="MainTabs"
-        component={MainTabs}
+        component={MainTabNavigator}
         options={{ headerShown: false }}
       />
-      <Stack.Screen
+      <RootStack.Screen
         name="WineDetail"
         component={WineDetailScreen}
         options={{ title: '' }}
       />
-      <Stack.Screen
+      <RootStack.Screen
         name="WineEdit"
         component={WineEditScreen}
         options={{ title: 'Modifier' }}
       />
-      <Stack.Screen
+      <RootStack.Screen
         name="AddWine"
         component={AddScreen}
         options={{
@@ -159,6 +140,16 @@ export function RootNavigator() {
           headerLeft: () => null,
         }}
       />
-    </Stack.Navigator>
+    </RootStack.Navigator>
   );
+}
+
+// ─── Typed hooks ──────────────────────────────────────────────────────────────
+
+export function useAppNavigation() {
+  return useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+}
+
+export function useAppRoute<RouteName extends keyof RootStackParamList>() {
+  return useRoute<RouteProp<RootStackParamList, RouteName>>();
 }

@@ -4,10 +4,9 @@ import {
   TouchableOpacity,
   Text,
   StyleSheet,
-  Alert,
   ActivityIndicator,
+  Image,
 } from 'react-native';
-import { Image } from 'expo-image';
 import { colors, spacing, radius, font } from './ui/tokens';
 
 interface Props {
@@ -38,8 +37,7 @@ export function LabelPhoto({ uri, onPress, readOnly = false, height = 200, loadi
         <Image
           source={{ uri }}
           style={styles.image}
-          contentFit="cover"
-          transition={200}
+          resizeMode="cover"
         />
         {!readOnly && (
           <View style={styles.editBadge}>

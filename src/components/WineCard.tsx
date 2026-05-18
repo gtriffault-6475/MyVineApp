@@ -1,7 +1,6 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { Image } from 'expo-image';
-import * as FileSystem from 'expo-file-system';
+import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import RNFS from 'react-native-fs';
 import type { Wine } from '../types/wine';
 import { StarRating } from './StarRating';
 import { colors, spacing, radius, font, shadow } from './ui/tokens';
@@ -19,7 +18,7 @@ interface Props {
 
 export function WineCard({ wine, onPress }: Props) {
   const photoUri = wine.photo_uri
-    ? `${FileSystem.documentDirectory}${wine.photo_uri}`
+    ? `file://${RNFS.DocumentDirectoryPath}/${wine.photo_uri}`
     : null;
 
   const locationLabel =
@@ -42,8 +41,7 @@ export function WineCard({ wine, onPress }: Props) {
           <Image
             source={{ uri: photoUri }}
             style={styles.thumbImage}
-            contentFit="cover"
-            transition={150}
+            resizeMode="cover"
           />
         ) : (
           <View style={styles.thumbPlaceholder}>

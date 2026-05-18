@@ -8,14 +8,16 @@ import {
   RefreshControl,
   ActivityIndicator,
 } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useWineContext } from '@/context/WineContext';
 import { WineCard } from '@/components/WineCard';
 import { EmptyState } from '@/components/EmptyState';
 import { colors, spacing, shadow } from '@/components/ui/tokens';
+import type { RootStackParamList } from '@/navigation';
 
-export default function CellarScreen() {
-  const router = useRouter();
+export function CellarScreen() {
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { state, reload } = useWineContext();
   const { wines, loading } = state;
 
@@ -33,14 +35,17 @@ export default function CellarScreen() {
         data={wines}
         keyExtractor={(w) => w.id.toString()}
         renderItem={({ item }) => (
-          <WineCard wine={item} onPress={() => router.push(`/wine/${item.id}`)} />
+          <WineCard
+            wine={item}
+            onPress={() => navigation.navigate('WineDetail', { wineId: item.id })}
+          />
         )}
         contentContainerStyle={wines.length === 0 ? styles.emptyContainer : styles.list}
         ListEmptyComponent={
           <EmptyState
             action={{
               label: 'Ajouter un vin',
-              onPress: () => router.push('/add'),
+              onPress: () => navigation.navigate('AddWine'),
             }}
           />
         }
@@ -56,7 +61,7 @@ export default function CellarScreen() {
 
       <TouchableOpacity
         style={styles.fab}
-        onPress={() => router.push('/add')}
+        onPress={() => navigation.navigate('AddWine')}
         activeOpacity={0.85}
       >
         <Text style={styles.fabIcon}>+</Text>

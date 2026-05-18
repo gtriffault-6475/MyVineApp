@@ -7,16 +7,18 @@ import {
   Text,
   ActivityIndicator,
 } from 'react-native';
-import { useRouter } from 'expo-router';
-import { useSQLiteContext } from 'expo-sqlite';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { TextInput } from '@/components/ui/TextInput';
 import { WineCard } from '@/components/WineCard';
 import { EmptyState } from '@/components/EmptyState';
 import { SearchFilters } from '@/components/SearchFilters';
 import { searchWines } from '@/db/queries';
+import { getDb } from '@/db/database';
 import { DEFAULT_FILTERS } from '@/types/wine';
 import type { Wine, WineSearchFilters } from '@/types/wine';
 import { colors, spacing, font, radius } from '@/components/ui/tokens';
+import type { RootStackParamList } from '@/navigation';
 
 function activeFilterCount(filters: WineSearchFilters): number {
   return [
@@ -28,9 +30,8 @@ function activeFilterCount(filters: WineSearchFilters): number {
   ].filter(Boolean).length;
 }
 
-export default function SearchScreen() {
-  const router = useRouter();
-  const db = useSQLiteContext();
+export function SearchScreen() {
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const [filters, setFilters] = useState<WineSearchFilters>(DEFAULT_FILTERS);
   const [results, setResults] = useState<Wine[]>([]);
   const [loading, setLoading] = useState(false);
@@ -41,13 +42,14 @@ export default function SearchScreen() {
     async (f: WineSearchFilters) => {
       setLoading(true);
       try {
+        const db = await getDb();
         const wines = await searchWines(db, f);
         setResults(wines);
       } finally {
         setLoading(false);
       }
     },
-    [db]
+    []
   );
 
   // Debounce text changes, instant for filter changes
@@ -139,7 +141,10 @@ export default function SearchScreen() {
           data={results}
           keyExtractor={(w) => w.id.toString()}
           renderItem={({ item }) => (
-            <WineCard wine={item} onPress={() => router.push(`/wine/${item.id}`)} />
+            <WineCard
+              wine={item}
+              onPress={() => navigation.navigate('WineDetail', { wineId: item.id })}
+            />
           )}
           contentContainerStyle={results.length === 0 ? styles.emptyContainer : styles.list}
           ListEmptyComponent={

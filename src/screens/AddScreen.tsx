@@ -1,36 +1,24 @@
 import React, { useState } from 'react';
-import { Alert, ActivityIndicator, View } from 'react-native';
-import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useSQLiteContext } from 'expo-sqlite';
-import { useWineContext } from '@/context/WineContext';
-import { updateWine, getWineById } from '@/db/queries';
+import { Alert } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { WineForm } from '@/components/WineForm';
-import { useWineForm } from '@/hooks/useWineForm';
+import { useWineForm, EMPTY_FORM } from '@/hooks/useWineForm';
 import { useImagePicker } from '@/hooks/useImagePicker';
-import { wineFormToDb, wineToForm } from '@/types/wine';
-import { colors } from '@/components/ui/tokens';
+import { useWineContext } from '@/context/WineContext';
+import { getDb } from '@/db/database';
+import { insertWine, getWineById } from '@/db/queries';
+import { wineFormToDb } from '@/types/wine';
 import { recognizeWineLabel, getApiKey } from '@/services/wineRecognition';
+import type { RootStackParamList } from '@/navigation';
 
-export default function EditScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>();
-  const router = useRouter();
-  const db = useSQLiteContext();
-  const { state, dispatch } = useWineContext();
-
-  const wine = state.wines.find((w) => w.id === parseInt(id, 10));
-
-  const { form, errors, update, validate } = useWineForm(wine ? wineToForm(wine) : undefined);
-  const { pickFromLibrary, pickFromCamera, deletePhoto, toFullUri } = useImagePicker();
+export function AddScreen() {
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const { dispatch } = useWineContext();
+  const { form, errors, update, validate } = useWineForm(EMPTY_FORM);
+  const { pickFromLibrary, pickFromCamera, toFullUri } = useImagePicker();
   const [submitting, setSubmitting] = useState(false);
   const [analyzing, setAnalyzing] = useState(false);
-
-  if (!wine) {
-    return (
-      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-        <ActivityIndicator color={colors.primary} />
-      </View>
-    );
-  }
 
   const analyzeLabel = async (uri: string) => {
     const apiKey = await getApiKey();
@@ -70,7 +58,6 @@ export default function EditScreen() {
         onPress: async () => {
           const uri = await pickFromCamera();
           if (uri) {
-            if (form.photo_uri) await deletePhoto(form.photo_uri);
             update('photo_uri', uri);
             analyzeLabel(uri);
           }
@@ -81,18 +68,9 @@ export default function EditScreen() {
         onPress: async () => {
           const uri = await pickFromLibrary();
           if (uri) {
-            if (form.photo_uri) await deletePhoto(form.photo_uri);
             update('photo_uri', uri);
             analyzeLabel(uri);
           }
-        },
-      },
-      {
-        text: 'Supprimer la photo',
-        style: 'destructive',
-        onPress: async () => {
-          if (form.photo_uri) await deletePhoto(form.photo_uri);
-          update('photo_uri', null);
         },
       },
       { text: 'Annuler', style: 'cancel' },
@@ -103,13 +81,14 @@ export default function EditScreen() {
     if (!validate()) return;
     setSubmitting(true);
     try {
+      const db = await getDb();
       const data = wineFormToDb(form);
-      await updateWine(db, wine.id, data);
-      const updated = await getWineById(db, wine.id);
-      if (updated) dispatch({ type: 'UPDATE_WINE', payload: updated });
-      router.back();
+      const id = await insertWine(db, data);
+      const wine = await getWineById(db, id);
+      if (wine) dispatch({ type: 'ADD_WINE', payload: wine });
+      navigation.goBack();
     } catch {
-      Alert.alert('Erreur', 'Impossible de mettre à jour le vin.');
+      Alert.alert('Erreur', "Impossible d'enregistrer le vin.");
     } finally {
       setSubmitting(false);
     }
@@ -124,7 +103,9 @@ export default function EditScreen() {
       onPickPhoto={handlePickPhoto}
       photoFullUri={toFullUri(form.photo_uri)}
       submitting={submitting || analyzing}
-      submitLabel={analyzing ? "Analyse en cours…" : "Enregistrer les modifications"}
+      submitLabel={analyzing ? "Analyse en cours…" : "Ajouter ce vin"}
+      showCancel
+      onCancel={() => navigation.goBack()}
     />
   );
 }

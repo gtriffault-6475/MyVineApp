@@ -1,7 +1,7 @@
-import SQLite from 'react-native-sqlite-storage';
+import SQLite, { SQLiteDatabase } from 'react-native-sqlite-storage';
 import type { Wine, WineStats, WineSearchFilters } from '../types/wine';
 
-export async function getAllWines(db: SQLite.SQLiteDatabase): Promise<Wine[]> {
+export async function getAllWines(db: SQLiteDatabase): Promise<Wine[]> {
   const [results] = await db.executeSql(
     `SELECT * FROM wines ORDER BY drunk_at DESC, created_at DESC`
   );
@@ -13,7 +13,7 @@ export async function getAllWines(db: SQLite.SQLiteDatabase): Promise<Wine[]> {
 }
 
 export async function getWineById(
-  db: SQLite.SQLiteDatabase,
+  db: SQLiteDatabase,
   id: number
 ): Promise<Wine | null> {
   const [results] = await db.executeSql(`SELECT * FROM wines WHERE id = ?`, [id]);
@@ -21,7 +21,7 @@ export async function getWineById(
 }
 
 export async function insertWine(
-  db: SQLite.SQLiteDatabase,
+  db: SQLiteDatabase,
   wine: Omit<Wine, 'id' | 'created_at' | 'updated_at'>
 ): Promise<number> {
   const [results] = await db.executeSql(
@@ -48,7 +48,7 @@ export async function insertWine(
 }
 
 export async function updateWine(
-  db: SQLite.SQLiteDatabase,
+  db: SQLiteDatabase,
   id: number,
   wine: Omit<Wine, 'id' | 'created_at' | 'updated_at'>
 ): Promise<void> {
@@ -77,7 +77,7 @@ export async function updateWine(
   );
 }
 
-export async function deleteWine(db: SQLite.SQLiteDatabase, id: number): Promise<void> {
+export async function deleteWine(db: SQLiteDatabase, id: number): Promise<void> {
   await db.executeSql(`DELETE FROM wines WHERE id = ?`, [id]);
 }
 
@@ -91,7 +91,7 @@ const SORT_CLAUSES: Record<WineSearchFilters['sortBy'], string> = {
 };
 
 export async function searchWines(
-  db: SQLite.SQLiteDatabase,
+  db: SQLiteDatabase,
   filters: WineSearchFilters
 ): Promise<Wine[]> {
   const conditions: string[] = [];
@@ -148,7 +148,7 @@ export async function searchWines(
   return rows;
 }
 
-export async function getStats(db: SQLite.SQLiteDatabase): Promise<WineStats> {
+export async function getStats(db: SQLiteDatabase): Promise<WineStats> {
   const [totalsResult] = await db.executeSql(
     `SELECT COUNT(*) as total,
             AVG(score) as avg_score,

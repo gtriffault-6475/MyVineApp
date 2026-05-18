@@ -1,4 +1,4 @@
-import SQLite from 'react-native-sqlite-storage';
+import SQLite, { SQLiteDatabase } from 'react-native-sqlite-storage';
 import {
   CREATE_WINES_TABLE,
   CREATE_INDEXES,
@@ -6,7 +6,7 @@ import {
   DB_VERSION,
 } from './schema';
 
-export async function runMigrations(db: SQLite.SQLiteDatabase): Promise<void> {
+export async function runMigrations(db: SQLiteDatabase): Promise<void> {
   await db.executeSql(CREATE_META_TABLE);
 
   const [metaResults] = await db.executeSql(

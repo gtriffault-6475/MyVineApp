@@ -7,15 +7,17 @@ import {
   TouchableOpacity,
   Alert,
   ActivityIndicator,
+  Image,
 } from 'react-native';
-import { useLocalSearchParams, useRouter, useNavigation } from 'expo-router';
-import { useSQLiteContext } from 'expo-sqlite';
-import { Image } from 'expo-image';
-import * as FileSystem from 'expo-file-system';
+import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import RNFS from 'react-native-fs';
 import { useWineContext } from '@/context/WineContext';
+import { getDb } from '@/db/database';
 import { deleteWine } from '@/db/queries';
 import { StarRating } from '@/components/StarRating';
 import { colors, spacing, font, radius, shadow } from '@/components/ui/tokens';
+import type { RootStackParamList } from '@/navigation';
 
 const LOCATION_LABELS: Record<string, string> = {
   home: 'À la maison',
@@ -23,14 +25,13 @@ const LOCATION_LABELS: Record<string, string> = {
   restaurant: 'Restaurant',
 };
 
-export default function WineDetailScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>();
-  const router = useRouter();
-  const navigation = useNavigation();
-  const db = useSQLiteContext();
+export function WineDetailScreen() {
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const route = useRoute<RouteProp<RootStackParamList, 'WineDetail'>>();
+  const { wineId } = route.params;
   const { state, dispatch } = useWineContext();
 
-  const wine = state.wines.find((w) => w.id === parseInt(id, 10));
+  const wine = state.wines.find((w) => w.id === wineId);
 
   useEffect(() => {
     if (!wine) return;
@@ -39,7 +40,7 @@ export default function WineDetailScreen() {
       headerRight: () => (
         <View style={styles.headerActions}>
           <TouchableOpacity
-            onPress={() => router.push(`/wine/${wine.id}/edit`)}
+            onPress={() => navigation.navigate('WineEdit', { wineId: wine.id })}
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
           >
             <Text style={styles.headerBtn}>Modifier</Text>
@@ -73,17 +74,17 @@ export default function WineDetailScreen() {
           text: 'Supprimer',
           style: 'destructive',
           onPress: async () => {
+            const db = await getDb();
             await deleteWine(db, wine.id);
             if (wine.photo_uri) {
               try {
-                await FileSystem.deleteAsync(
-                  `${FileSystem.documentDirectory}${wine.photo_uri}`,
-                  { idempotent: true }
-                );
+                const fullPath = `${RNFS.DocumentDirectoryPath}/${wine.photo_uri}`;
+                const exists = await RNFS.exists(fullPath);
+                if (exists) await RNFS.unlink(fullPath);
               } catch {}
             }
             dispatch({ type: 'DELETE_WINE', payload: wine.id });
-            router.back();
+            navigation.goBack();
           },
         },
       ]
@@ -91,7 +92,7 @@ export default function WineDetailScreen() {
   };
 
   const photoUri = wine.photo_uri
-    ? `${FileSystem.documentDirectory}${wine.photo_uri}`
+    ? `file://${RNFS.DocumentDirectoryPath}/${wine.photo_uri}`
     : null;
 
   const drunkDate = new Date(wine.drunk_at).toLocaleDateString('fr-FR', {
@@ -111,8 +112,7 @@ export default function WineDetailScreen() {
         <Image
           source={{ uri: photoUri }}
           style={styles.photo}
-          contentFit="cover"
-          transition={200}
+          resizeMode="cover"
         />
       ) : (
         <View style={styles.photoPlaceholder}>

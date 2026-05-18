@@ -6,14 +6,13 @@ import {
   StyleSheet,
   ActivityIndicator,
 } from 'react-native';
-import { useSQLiteContext } from 'expo-sqlite';
+import { getDb } from '@/db/database';
 import { getStats } from '@/db/queries';
 import type { WineStats } from '@/types/wine';
 import { colors, spacing, font, radius, shadow } from '@/components/ui/tokens';
 import { useWineContext } from '@/context/WineContext';
 
-export default function StatsScreen() {
-  const db = useSQLiteContext();
+export function StatsScreen() {
   const { state } = useWineContext();
   const [stats, setStats] = useState<WineStats | null>(null);
   const [loading, setLoading] = useState(true);
@@ -25,6 +24,7 @@ export default function StatsScreen() {
   const loadStats = async () => {
     setLoading(true);
     try {
+      const db = await getDb();
       const s = await getStats(db);
       setStats(s);
     } finally {
