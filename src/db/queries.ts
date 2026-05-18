@@ -1,19 +1,30 @@
-import type { SQLiteDatabase } from 'expo-sqlite';
+import SQLite from 'react-native-sqlite-storage';
 import type { Wine, WineStats, WineSearchFilters } from '../types/wine';
 
-export async function getAllWines(db: SQLiteDatabase): Promise<Wine[]> {
-  return db.getAllAsync<Wine>(`SELECT * FROM wines ORDER BY drunk_at DESC, created_at DESC`);
+export async function getAllWines(db: SQLite.SQLiteDatabase): Promise<Wine[]> {
+  const [results] = await db.executeSql(
+    `SELECT * FROM wines ORDER BY drunk_at DESC, created_at DESC`
+  );
+  const rows: Wine[] = [];
+  for (let i = 0; i < results.rows.length; i++) {
+    rows.push(results.rows.item(i) as Wine);
+  }
+  return rows;
 }
 
-export async function getWineById(db: SQLiteDatabase, id: number): Promise<Wine | null> {
-  return db.getFirstAsync<Wine>(`SELECT * FROM wines WHERE id = ?`, [id]);
+export async function getWineById(
+  db: SQLite.SQLiteDatabase,
+  id: number
+): Promise<Wine | null> {
+  const [results] = await db.executeSql(`SELECT * FROM wines WHERE id = ?`, [id]);
+  return results.rows.length > 0 ? (results.rows.item(0) as Wine) : null;
 }
 
 export async function insertWine(
-  db: SQLiteDatabase,
+  db: SQLite.SQLiteDatabase,
   wine: Omit<Wine, 'id' | 'created_at' | 'updated_at'>
 ): Promise<number> {
-  const result = await db.runAsync(
+  const [results] = await db.executeSql(
     `INSERT INTO wines
       (name, producer, appellation, vintage, score, location_type, restaurant_name,
        drunk_at, food_pairing, photo_uri, comment, buy_again)
@@ -33,15 +44,15 @@ export async function insertWine(
       wine.buy_again,
     ]
   );
-  return result.lastInsertRowId;
+  return results.insertId;
 }
 
 export async function updateWine(
-  db: SQLiteDatabase,
+  db: SQLite.SQLiteDatabase,
   id: number,
   wine: Omit<Wine, 'id' | 'created_at' | 'updated_at'>
 ): Promise<void> {
-  await db.runAsync(
+  await db.executeSql(
     `UPDATE wines SET
       name = ?, producer = ?, appellation = ?, vintage = ?, score = ?,
       location_type = ?, restaurant_name = ?, drunk_at = ?, food_pairing = ?,
@@ -66,8 +77,8 @@ export async function updateWine(
   );
 }
 
-export async function deleteWine(db: SQLiteDatabase, id: number): Promise<void> {
-  await db.runAsync(`DELETE FROM wines WHERE id = ?`, [id]);
+export async function deleteWine(db: SQLite.SQLiteDatabase, id: number): Promise<void> {
+  await db.executeSql(`DELETE FROM wines WHERE id = ?`, [id]);
 }
 
 const SORT_CLAUSES: Record<WineSearchFilters['sortBy'], string> = {
@@ -80,11 +91,11 @@ const SORT_CLAUSES: Record<WineSearchFilters['sortBy'], string> = {
 };
 
 export async function searchWines(
-  db: SQLiteDatabase,
+  db: SQLite.SQLiteDatabase,
   filters: WineSearchFilters
 ): Promise<Wine[]> {
   const conditions: string[] = [];
-  const params: (string | number)[] = [];
+  const params: (string | number | null)[] = [];
 
   if (filters.term.trim()) {
     const like = `%${filters.term.trim()}%`;
@@ -126,32 +137,56 @@ export async function searchWines(
   const where = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
   const order = SORT_CLAUSES[filters.sortBy];
 
-  return db.getAllAsync<Wine>(`SELECT * FROM wines ${where} ORDER BY ${order}`, params);
+  const [results] = await db.executeSql(
+    `SELECT * FROM wines ${where} ORDER BY ${order}`,
+    params
+  );
+  const rows: Wine[] = [];
+  for (let i = 0; i < results.rows.length; i++) {
+    rows.push(results.rows.item(i) as Wine);
+  }
+  return rows;
 }
 
-export async function getStats(db: SQLiteDatabase): Promise<WineStats> {
-  const totals = await db.getFirstAsync<{
-    total: number;
-    avg_score: number | null;
-    buy_again_count: number;
-  }>(
+export async function getStats(db: SQLite.SQLiteDatabase): Promise<WineStats> {
+  const [totalsResult] = await db.executeSql(
     `SELECT COUNT(*) as total,
             AVG(score) as avg_score,
             SUM(buy_again) as buy_again_count
      FROM wines`
   );
+  const totals =
+    totalsResult.rows.length > 0
+      ? (totalsResult.rows.item(0) as {
+          total: number;
+          avg_score: number | null;
+          buy_again_count: number;
+        })
+      : null;
 
-  const top_appellations = await db.getAllAsync<{ appellation: string; count: number }>(
+  const [appellationsResult] = await db.executeSql(
     `SELECT appellation, COUNT(*) as count FROM wines
      WHERE appellation IS NOT NULL AND appellation != ''
      GROUP BY appellation ORDER BY count DESC LIMIT 5`
   );
+  const top_appellations: { appellation: string; count: number }[] = [];
+  for (let i = 0; i < appellationsResult.rows.length; i++) {
+    top_appellations.push(
+      appellationsResult.rows.item(i) as { appellation: string; count: number }
+    );
+  }
 
-  const top_producers = await db.getAllAsync<{ producer: string; count: number }>(
+  const [producersResult] = await db.executeSql(
     `SELECT producer, COUNT(*) as count FROM wines
      WHERE producer IS NOT NULL AND producer != ''
      GROUP BY producer ORDER BY count DESC LIMIT 5`
   );
+  const top_producers: { producer: string; count: number }[] = [];
+  for (let i = 0; i < producersResult.rows.length; i++) {
+    top_producers.push(
+      producersResult.rows.item(i) as { producer: string; count: number }
+    );
+  }
 
   return {
     total: totals?.total ?? 0,

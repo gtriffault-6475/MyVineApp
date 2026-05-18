@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
-import { useSQLiteContext } from 'expo-sqlite';
+import { getDb } from '../db/database';
 import { getAllWines } from '../db/queries';
 import { wineReducer, initialState, WineState, WineAction } from './WineReducer';
 
@@ -12,12 +12,12 @@ interface WineContextValue {
 const WineContext = createContext<WineContextValue | null>(null);
 
 export function WineProvider({ children }: { children: React.ReactNode }) {
-  const db = useSQLiteContext();
   const [state, dispatch] = useReducer(wineReducer, initialState);
 
   const reload = async () => {
     dispatch({ type: 'LOAD_START' });
     try {
+      const db = await getDb();
       const wines = await getAllWines(db);
       dispatch({ type: 'LOAD_SUCCESS', payload: wines });
     } catch (e) {
