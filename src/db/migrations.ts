@@ -29,6 +29,10 @@ export async function runMigrations(db: SQLiteDatabase): Promise<void> {
     }
   }
 
+  if (currentVersion < 2) {
+    await db.executeSql(`ALTER TABLE wines ADD COLUMN companion TEXT`);
+  }
+
   await db.executeSql(
     `INSERT OR REPLACE INTO meta(key, value) VALUES ('db_version', ?)`,
     [DB_VERSION.toString()]

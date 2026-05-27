@@ -5,8 +5,6 @@ import {
   Text,
   StyleSheet,
   Alert,
-  KeyboardAvoidingView,
-  Platform,
 } from 'react-native';
 import { TextInput } from './ui/TextInput';
 import { Button } from './ui/Button';
@@ -50,15 +48,12 @@ export function WineForm({
   onCancel,
 }: Props) {
   return (
-    <KeyboardAvoidingView
-      style={{ flex: 1 }}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    <ScrollView
+      contentContainerStyle={styles.scroll}
+      keyboardShouldPersistTaps="handled"
+      showsVerticalScrollIndicator={false}
+      automaticallyAdjustKeyboardInsets
     >
-      <ScrollView
-        contentContainerStyle={styles.scroll}
-        keyboardShouldPersistTaps="handled"
-        showsVerticalScrollIndicator={false}
-      >
         <LabelPhoto
           uri={photoFullUri}
           onPress={onPickPhoto}
@@ -134,6 +129,16 @@ export function WineForm({
 
         <View style={styles.section}>
           <TextInput
+            label="Avec qui"
+            value={form.companion}
+            onChangeText={(v) => update('companion', v)}
+            placeholder="ex: Marie, famille, collègues…"
+            autoCapitalize="words"
+          />
+        </View>
+
+        <View style={styles.section}>
+          <TextInput
             label="Date"
             value={form.drunk_at}
             onChangeText={(v) => update('drunk_at', v)}
@@ -189,7 +194,6 @@ export function WineForm({
           )}
         </View>
       </ScrollView>
-    </KeyboardAvoidingView>
   );
 }
 

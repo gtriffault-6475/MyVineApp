@@ -27,8 +27,8 @@ export async function insertWine(
   const [results] = await db.executeSql(
     `INSERT INTO wines
       (name, producer, appellation, vintage, score, location_type, restaurant_name,
-       drunk_at, food_pairing, photo_uri, comment, buy_again)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+       drunk_at, food_pairing, photo_uri, comment, companion, buy_again)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [
       wine.name,
       wine.producer,
@@ -41,6 +41,7 @@ export async function insertWine(
       wine.food_pairing,
       wine.photo_uri,
       wine.comment,
+      wine.companion,
       wine.buy_again,
     ]
   );
@@ -56,7 +57,7 @@ export async function updateWine(
     `UPDATE wines SET
       name = ?, producer = ?, appellation = ?, vintage = ?, score = ?,
       location_type = ?, restaurant_name = ?, drunk_at = ?, food_pairing = ?,
-      photo_uri = ?, comment = ?, buy_again = ?,
+      photo_uri = ?, comment = ?, companion = ?, buy_again = ?,
       updated_at = strftime('%Y-%m-%dT%H:%M:%fZ','now')
      WHERE id = ?`,
     [
@@ -71,6 +72,7 @@ export async function updateWine(
       wine.food_pairing,
       wine.photo_uri,
       wine.comment,
+      wine.companion,
       wine.buy_again,
       id,
     ]

@@ -17,6 +17,7 @@ export const EMPTY_FORM: WineForm = {
   food_pairing: '',
   photo_uri: null,
   comment: '',
+  companion: '',
   buy_again: false,
 };
 

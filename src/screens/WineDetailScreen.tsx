@@ -144,6 +144,10 @@ export function WineDetailScreen() {
           {wine.buy_again === 1 && <Chip icon="✓" label="À racheter" highlight />}
         </View>
 
+        {wine.companion ? (
+          <InfoBlock label="Avec qui" value={wine.companion} />
+        ) : null}
+
         {wine.food_pairing ? (
           <InfoBlock label="Accord mets-vins" value={wine.food_pairing} />
         ) : null}

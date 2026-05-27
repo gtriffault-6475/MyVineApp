@@ -43,6 +43,7 @@ export interface Wine {
   food_pairing: string | null;
   photo_uri: string | null; // relative path inside documentDirectory
   comment: string | null;
+  companion: string | null;
   buy_again: 0 | 1;
   created_at: string;
   updated_at: string;
@@ -60,6 +61,7 @@ export interface WineForm {
   food_pairing: string;
   photo_uri: string | null;
   comment: string;
+  companion: string;
   buy_again: boolean;
 }
 
@@ -85,6 +87,7 @@ export function wineFormToDb(form: WineForm): Omit<Wine, 'id' | 'created_at' | '
     food_pairing: form.food_pairing.trim() || null,
     photo_uri: form.photo_uri,
     comment: form.comment.trim() || null,
+    companion: form.companion.trim() || null,
     buy_again: form.buy_again ? 1 : 0,
   };
 }
@@ -102,6 +105,7 @@ export function wineToForm(wine: Wine): WineForm {
     food_pairing: wine.food_pairing ?? '',
     photo_uri: wine.photo_uri,
     comment: wine.comment ?? '',
+    companion: wine.companion ?? '',
     buy_again: wine.buy_again === 1,
   };
 }
