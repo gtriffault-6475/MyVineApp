@@ -113,7 +113,7 @@ export function RootNavigator() {
         headerShadowVisible: false,
         headerTintColor: colors.primary,
         headerTitleStyle: { fontWeight: '600', color: colors.text },
-        contentStyle: { backgroundColor: colors.white },
+        contentStyle: { backgroundColor: colors.white, flex: 1 },
       }}
     >
       <RootStack.Screen
