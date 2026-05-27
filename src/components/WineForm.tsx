@@ -49,6 +49,7 @@ export function WineForm({
 }: Props) {
   return (
     <ScrollView
+      style={styles.scrollView}
       contentContainerStyle={styles.scroll}
       keyboardShouldPersistTaps="handled"
       showsVerticalScrollIndicator={false}
@@ -198,6 +199,9 @@ export function WineForm({
 }
 
 const styles = StyleSheet.create({
+  scrollView: {
+    flex: 1,
+  },
   scroll: {
     padding: spacing.lg,
     paddingBottom: spacing.xxxl,
