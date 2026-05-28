@@ -94,7 +94,7 @@ export function SearchScreen() {
           <TextInput
             value={filters.term}
             onChangeText={handleTermChange}
-            placeholder="Vin, producteur, appellation, plat…"
+            placeholder="Vin, producteur, appellation, plat, avec qui…"
             containerStyle={styles.searchInput}
             returnKeyType="search"
             autoCorrect={false}
