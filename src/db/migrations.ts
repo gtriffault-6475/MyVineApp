@@ -29,7 +29,9 @@ export async function runMigrations(db: SQLiteDatabase): Promise<void> {
     }
   }
 
-  if (currentVersion < 2) {
+  // Only runs when upgrading an existing v1 install — fresh installs already
+  // have this column because CREATE_WINES_TABLE includes it from v2 onward.
+  if (currentVersion >= 1 && currentVersion < 2) {
     await db.executeSql(`ALTER TABLE wines ADD COLUMN companion TEXT`);
   }
 
