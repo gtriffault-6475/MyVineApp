@@ -102,9 +102,9 @@ export async function searchWines(
   if (filters.term.trim()) {
     const like = `%${filters.term.trim()}%`;
     conditions.push(
-      '(name LIKE ? OR producer LIKE ? OR appellation LIKE ? OR restaurant_name LIKE ? OR food_pairing LIKE ?)'
+      '(name LIKE ? OR producer LIKE ? OR appellation LIKE ? OR restaurant_name LIKE ? OR food_pairing LIKE ? OR companion LIKE ?)'
     );
-    params.push(like, like, like, like, like);
+    params.push(like, like, like, like, like, like);
   }
 
   if (filters.buyAgainOnly) {
