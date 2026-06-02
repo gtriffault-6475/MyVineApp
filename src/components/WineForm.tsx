@@ -15,6 +15,7 @@ import { StarRating } from './StarRating';
 import { ScorePicker } from './ScorePicker';
 import { LocationPicker } from './LocationPicker';
 import { BuyAgainToggle } from './BuyAgainToggle';
+import { DatePickerField } from './DatePickerField';
 import type { WineForm as WineFormType } from '../types/wine';
 import { colors, spacing, font } from './ui/tokens';
 
@@ -146,13 +147,10 @@ export function WineForm({
         </View>
 
         <View style={styles.section}>
-          <TextInput
+          <DatePickerField
             label="Date"
-            value={form.drunk_at}
-            onChangeText={(v) => update('drunk_at', v)}
-            placeholder="AAAA-MM-JJ"
-            keyboardType="numeric"
-            maxLength={10}
+            value={form.drunk_at ?? ''}
+            onChange={(v) => update('drunk_at', v)}
             error={errors.drunk_at}
           />
 
