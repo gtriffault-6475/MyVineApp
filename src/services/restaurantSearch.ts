@@ -1,7 +1,8 @@
 import * as Keychain from 'react-native-keychain';
 
 const KEYCHAIN_SERVICE = 'myvineapp-foursquare';
-const AUTOCOMPLETE_URL = 'https://api.foursquare.com/v3/autocomplete';
+const SEARCH_URL = 'https://places-api.foursquare.com/places/search';
+const FSQ_API_VERSION = '2025-06-17';
 
 export interface RestaurantSuggestion {
   id: string;
@@ -31,12 +32,14 @@ export async function searchRestaurants(
 
   const params = new URLSearchParams({
     query: query.trim(),
-    types: 'place',
     limit: '5',
   });
 
-  const response = await fetch(`${AUTOCOMPLETE_URL}?${params}`, {
-    headers: { Authorization: apiKey },
+  const response = await fetch(`${SEARCH_URL}?${params}`, {
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      'X-Places-Api-Version': FSQ_API_VERSION,
+    },
     signal,
   });
 
@@ -48,20 +51,15 @@ export async function searchRestaurants(
 
   const data = await response.json() as {
     results: Array<{
-      type: string;
-      place?: {
-        fsq_id: string;
-        name: string;
-        location?: { formatted_address?: string };
-      };
+      fsq_id: string;
+      name: string;
+      location?: { formatted_address?: string };
     }>;
   };
 
-  return (data.results ?? [])
-    .filter((r) => r.type === 'place' && r.place)
-    .map((r) => ({
-      id: r.place!.fsq_id,
-      name: r.place!.name,
-      address: r.place!.location?.formatted_address ?? null,
-    }));
+  return (data.results ?? []).map((r) => ({
+    id: r.fsq_id,
+    name: r.name,
+    address: r.location?.formatted_address ?? null,
+  }));
 }
