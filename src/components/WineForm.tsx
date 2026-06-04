@@ -16,6 +16,7 @@ import { ScorePicker } from './ScorePicker';
 import { LocationPicker } from './LocationPicker';
 import { BuyAgainToggle } from './BuyAgainToggle';
 import { DatePickerField } from './DatePickerField';
+import { RestaurantAutocomplete } from './RestaurantAutocomplete';
 import type { WineForm as WineFormType } from '../types/wine';
 import { colors, spacing, font } from './ui/tokens';
 
@@ -125,13 +126,10 @@ export function WineForm({
             onChange={(v) => update('location_type', v)}
           />
           {form.location_type === 'restaurant' && (
-            <TextInput
-              label="Nom du restaurant"
+            <RestaurantAutocomplete
               value={form.restaurant_name}
               onChangeText={(v) => update('restaurant_name', v)}
-              placeholder="ex: Le Grand Véfour"
               containerStyle={styles.restaurantInput}
-              autoCapitalize="words"
             />
           )}
         </View>

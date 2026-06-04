@@ -11,21 +11,28 @@ import {
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { saveApiKey, getApiKey, deleteApiKey } from '@/services/wineRecognition';
+import { saveFoursquareKey, getFoursquareKey, deleteFoursquareKey } from '@/services/restaurantSearch';
 import { colors, spacing, radius, font } from '@/components/ui/tokens';
 
 export function SettingsScreen() {
   const [keyInput, setKeyInput] = useState('');
   const [hasKey, setHasKey] = useState(false);
   const [saving, setSaving] = useState(false);
+
+  const [fsqInput, setFsqInput] = useState('');
+  const [hasFsqKey, setHasFsqKey] = useState(false);
+  const [fsqSaving, setFsqSaving] = useState(false);
+
   const [loading, setLoading] = useState(true);
 
   useFocusEffect(
     useCallback(() => {
       let active = true;
       (async () => {
-        const key = await getApiKey();
+        const [key, fsqKey] = await Promise.all([getApiKey(), getFoursquareKey()]);
         if (active) {
           setHasKey(!!key);
+          setHasFsqKey(!!fsqKey);
           setLoading(false);
         }
       })();
@@ -44,7 +51,7 @@ export function SettingsScreen() {
       await saveApiKey(trimmed);
       setHasKey(true);
       setKeyInput('');
-      Alert.alert('Clé enregistrée', 'La reconnaissance d\'étiquette est maintenant active.');
+      Alert.alert('Clé enregistrée', "La reconnaissance d'étiquette est maintenant active.");
     } catch {
       Alert.alert('Erreur', "Impossible d'enregistrer la clé.");
     } finally {
@@ -70,6 +77,43 @@ export function SettingsScreen() {
     );
   };
 
+  const handleFsqSave = async () => {
+    const trimmed = fsqInput.trim();
+    if (!trimmed.startsWith('fsq3')) {
+      Alert.alert('Clé invalide', "La clé Foursquare commence par « fsq3 ».");
+      return;
+    }
+    setFsqSaving(true);
+    try {
+      await saveFoursquareKey(trimmed);
+      setHasFsqKey(true);
+      setFsqInput('');
+      Alert.alert('Clé enregistrée', "L'autocomplete restaurant est maintenant actif.");
+    } catch {
+      Alert.alert('Erreur', "Impossible d'enregistrer la clé.");
+    } finally {
+      setFsqSaving(false);
+    }
+  };
+
+  const handleFsqDelete = () => {
+    Alert.alert(
+      'Supprimer la clé',
+      "L'autocomplete restaurant sera désactivé.",
+      [
+        { text: 'Annuler', style: 'cancel' },
+        {
+          text: 'Supprimer',
+          style: 'destructive',
+          onPress: async () => {
+            await deleteFoursquareKey();
+            setHasFsqKey(false);
+          },
+        },
+      ]
+    );
+  };
+
   if (loading) {
     return (
       <View style={styles.center}>
@@ -80,6 +124,8 @@ export function SettingsScreen() {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+
+      {/* Clé Anthropic */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Reconnaissance d'étiquette IA</Text>
         <Text style={styles.description}>
@@ -126,7 +172,7 @@ export function SettingsScreen() {
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Comment obtenir une clé ?</Text>
+        <Text style={styles.sectionTitle}>Comment obtenir une clé Anthropic ?</Text>
         <Text style={styles.description}>
           1. Créez un compte sur console.anthropic.com{'\n'}
           2. Dans « API Keys », cliquez « Create Key »{'\n'}
@@ -136,6 +182,66 @@ export function SettingsScreen() {
           La clé est stockée de façon sécurisée sur votre appareil et n'est jamais partagée.
         </Text>
       </View>
+
+      {/* Clé Foursquare */}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Autocomplete restaurant</Text>
+        <Text style={styles.description}>
+          Lors d'une dégustation en restaurant, obtenez des suggestions de noms en temps réel
+          grâce à l'API Foursquare Places.
+        </Text>
+
+        {hasFsqKey ? (
+          <View style={styles.keyStatus}>
+            <View style={styles.statusRow}>
+              <View style={styles.dot} />
+              <Text style={styles.statusText}>Clé API configurée</Text>
+            </View>
+            <TouchableOpacity style={styles.deleteButton} onPress={handleFsqDelete}>
+              <Text style={styles.deleteButtonText}>Supprimer la clé</Text>
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <View style={styles.keyForm}>
+            <Text style={styles.inputLabel}>Clé API Foursquare</Text>
+            <TextInput
+              style={styles.input}
+              value={fsqInput}
+              onChangeText={setFsqInput}
+              placeholder="fsq3..."
+              placeholderTextColor={colors.textMuted}
+              autoCapitalize="none"
+              autoCorrect={false}
+              secureTextEntry
+            />
+            <TouchableOpacity
+              style={[styles.saveButton, fsqSaving && styles.saveButtonDisabled]}
+              onPress={handleFsqSave}
+              disabled={fsqSaving || !fsqInput.trim()}
+            >
+              {fsqSaving ? (
+                <ActivityIndicator color={colors.white} size="small" />
+              ) : (
+                <Text style={styles.saveButtonText}>Enregistrer la clé</Text>
+              )}
+            </TouchableOpacity>
+          </View>
+        )}
+      </View>
+
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Comment obtenir une clé Foursquare ?</Text>
+        <Text style={styles.description}>
+          1. Créez un compte sur developer.foursquare.com{'\n'}
+          2. Créez un nouveau projet{'\n'}
+          3. Copiez la clé API (elle commence par fsq3) et collez-la ici.
+        </Text>
+        <Text style={styles.note}>
+          Le plan gratuit inclut 1 000 requêtes/jour, largement suffisant pour un usage personnel.
+          La clé est stockée de façon sécurisée sur votre appareil.
+        </Text>
+      </View>
+
     </ScrollView>
   );
 }
