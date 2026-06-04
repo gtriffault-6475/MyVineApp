@@ -43,14 +43,11 @@ export async function searchRestaurants(
     signal,
   });
 
-  const rawBody = await response.text();
-  console.log(`[Foursquare] status=${response.status}`, rawBody.slice(0, 500));
-
   if (!response.ok) {
     return [];
   }
 
-  const data = JSON.parse(rawBody) as {
+  const data = await response.json() as {
     results: Array<{
       fsq_id: string;
       name: string;
