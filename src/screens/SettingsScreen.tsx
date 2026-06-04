@@ -79,8 +79,8 @@ export function SettingsScreen() {
 
   const handleFsqSave = async () => {
     const trimmed = fsqInput.trim();
-    if (!trimmed.startsWith('fsq3')) {
-      Alert.alert('Clé invalide', "La clé Foursquare commence par « fsq3 ».");
+    if (!trimmed) {
+      Alert.alert('Clé invalide', "Veuillez saisir une clé API Foursquare.");
       return;
     }
     setFsqSaving(true);
@@ -208,7 +208,7 @@ export function SettingsScreen() {
               style={styles.input}
               value={fsqInput}
               onChangeText={setFsqInput}
-              placeholder="fsq3..."
+              placeholder="Clé API Foursquare"
               placeholderTextColor={colors.textMuted}
               autoCapitalize="none"
               autoCorrect={false}
