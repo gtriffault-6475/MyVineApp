@@ -1,8 +1,8 @@
 import React from 'react';
-import { Text } from 'react-native';
 import { createNativeStackNavigator, NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useNavigation, useRoute, NavigatorScreenParams, RouteProp } from '@react-navigation/native';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import { colors } from '@/components/ui/tokens';
 
 import { CellarScreen } from '@/screens/CellarScreen';
@@ -40,13 +40,23 @@ export type RootStackParamList = {
 const RootStack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<MainTabParamList>();
 
-// ─── Tab icon ─────────────────────────────────────────────────────────────────
+// ─── Tab icon — outline inactive, filled active ────────────────────────────
 
-function TabIcon({ emoji, focused }: { emoji: string; focused: boolean }) {
+type TabIconProps = {
+  name: string;        // outline variant (inactive)
+  nameFilled: string;  // filled variant (active)
+  focused: boolean;
+  color: string;
+  size: number;
+};
+
+function TabIcon({ name, nameFilled, focused, color, size }: TabIconProps) {
   return (
-    <Text style={{ fontSize: focused ? 24 : 22, opacity: focused ? 1 : 0.55 }}>
-      {emoji}
-    </Text>
+    <Ionicons
+      name={focused ? nameFilled : name}
+      size={size}
+      color={color}
+    />
   );
 }
 
@@ -75,7 +85,9 @@ function MainTabNavigator() {
         options={{
           title: 'Ma cave',
           tabBarLabel: 'Cave',
-          tabBarIcon: ({ focused }) => <TabIcon emoji="🏛️" focused={focused} />,
+          tabBarIcon: ({ focused, color, size }) => (
+            <TabIcon name="archive-outline" nameFilled="archive" focused={focused} color={color} size={size} />
+          ),
         }}
       />
       <Tab.Screen
@@ -84,7 +96,9 @@ function MainTabNavigator() {
         options={{
           title: 'Dégustations',
           tabBarLabel: 'Dégustations',
-          tabBarIcon: ({ focused }) => <TabIcon emoji="🍷" focused={focused} />,
+          tabBarIcon: ({ focused, color, size }) => (
+            <TabIcon name="wine-outline" nameFilled="wine" focused={focused} color={color} size={size} />
+          ),
         }}
       />
       <Tab.Screen
@@ -93,7 +107,9 @@ function MainTabNavigator() {
         options={{
           title: 'Rechercher',
           tabBarLabel: 'Recherche',
-          tabBarIcon: ({ focused }) => <TabIcon emoji="🔍" focused={focused} />,
+          tabBarIcon: ({ focused, color, size }) => (
+            <TabIcon name="search-outline" nameFilled="search" focused={focused} color={color} size={size} />
+          ),
         }}
       />
       <Tab.Screen
@@ -102,7 +118,9 @@ function MainTabNavigator() {
         options={{
           title: 'Statistiques',
           tabBarLabel: 'Stats',
-          tabBarIcon: ({ focused }) => <TabIcon emoji="📊" focused={focused} />,
+          tabBarIcon: ({ focused, color, size }) => (
+            <TabIcon name="stats-chart-outline" nameFilled="stats-chart" focused={focused} color={color} size={size} />
+          ),
         }}
       />
       <Tab.Screen
@@ -111,7 +129,9 @@ function MainTabNavigator() {
         options={{
           title: 'Paramètres',
           tabBarLabel: 'Paramètres',
-          tabBarIcon: ({ focused }) => <TabIcon emoji="⚙️" focused={focused} />,
+          tabBarIcon: ({ focused, color, size }) => (
+            <TabIcon name="settings-outline" nameFilled="settings" focused={focused} color={color} size={size} />
+          ),
         }}
       />
     </Tab.Navigator>
