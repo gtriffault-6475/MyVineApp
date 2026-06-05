@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MyVine — Aperçu des thèmes</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #1a1a1a;
+    padding: 32px 16px 48px;
+    min-height: 100vh;
+  }
+  h1 {
+    color: #fff;
+    text-align: center;
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .subtitle {
+    color: #888;
+    text-align: center;
+    font-size: 13px;
+    margin-bottom: 40px;
+  }
+  .themes-grid {
+    display: flex;
+    gap: 28px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .theme-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+  .theme-label {
+    color: #ccc;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+
+  /* ── iPhone shell ─────────────────────────────── */
+  .phone {
+    width: 260px;
+    border-radius: 38px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.6), 0 0 0 2px #333;
+    background: #000;
+    position: relative;
+  }
+
+  /* ── Status bar ─────────────────────────────── */
+  .status-bar {
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 20px 0;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .status-time { font-size: 14px; font-weight: 700; }
+  .status-icons { display: flex; gap: 5px; font-size: 11px; }
+
+  /* ── Nav header ─────────────────────────────── */
+  .nav-header {
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-bottom-width: 1px;
+    border-bottom-style: solid;
+    font-size: 16px;
+    font-weight: 600;
+  }
+
+  /* ── Screen content ────────────────────────── */
+  .screen {
+    height: 560px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── Wine card ─────────────────────────────── */
+  .card {
+    display: flex;
+    margin: 6px 12px;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.09);
+  }
+  .card-thumb {
+    width: 72px;
+    min-height: 88px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+    flex-shrink: 0;
+  }
+  .card-body {
+    flex: 1;
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .card-row { display: flex; align-items: center; justify-content: space-between; }
+  .card-name { font-size: 14px; font-weight: 600; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .card-badge { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 999px; flex-shrink: 0; margin-left: 6px; }
+  .card-sub { font-size: 11px; }
+  .card-footer { margin-top: 2px; }
+  .stars { font-size: 12px; letter-spacing: -1px; }
+  .card-meta { font-size: 10px; margin-top: 2px; }
+
+  /* ── Cellar card ─────────────────────────────── */
+  .cellar-qty {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 999px;
+    flex-shrink: 0;
+    margin-left: 6px;
+  }
+  .apogee-chip {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 500;
+    padding: 2px 8px;
+    border-radius: 999px;
+    border-width: 1px;
+    border-style: solid;
+    margin-top: 4px;
+  }
+
+  /* ── Section heading ───────────────────────── */
+  .section-sep {
+    padding: 10px 14px 4px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+  }
+
+  /* ── Score bar (stats) ─────────────────────── */
+  .stat-block {
+    margin: 6px 12px;
+    padding: 12px;
+    border-radius: 12px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+    border-width: 1px;
+    border-style: solid;
+  }
+  .stat-number { font-size: 26px; font-weight: 700; }
+  .stat-label { font-size: 11px; margin-top: 2px; }
+  .stat-row { display: flex; gap: 8px; margin: 6px 12px; }
+  .stat-mini {
+    flex: 1;
+    padding: 10px;
+    border-radius: 10px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+    border-width: 1px;
+    border-style: solid;
+    text-align: center;
+  }
+  .stat-mini-num { font-size: 20px; font-weight: 700; }
+  .stat-mini-label { font-size: 10px; margin-top: 2px; }
+
+  /* ── FAB ─────────────────────────────────────── */
+  .fab {
+    position: absolute;
+    bottom: 68px;
+    right: 18px;
+    width: 48px;
+    height: 48px;
+    border-radius: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+    color: white;
+    font-weight: 300;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.25);
+    line-height: 1;
+    padding-bottom: 2px;
+  }
+
+  /* ── Tab bar ─────────────────────────────────── */
+  .tab-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 72px;
+    display: flex;
+    align-items: flex-start;
+    padding-top: 8px;
+    border-top-width: 1px;
+    border-top-style: solid;
+  }
+  .tab {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+  }
+  .tab-icon { font-size: 22px; }
+  .tab-icon.active { font-size: 24px; }
+  .tab-label { font-size: 9px; font-weight: 500; }
+
+  /* ── Scrollable content area ─────────────────── */
+  .scroll-area {
+    flex: 1;
+    overflow: hidden;
+    padding-top: 4px;
+    padding-bottom: 72px;
+    position: relative;
+  }
+
+  /* ═══════════════════════════════════════════════
+     THEME 1 — Terroir
+  ═══════════════════════════════════════════════ */
+  .t1 { background: #FDFAF5; }
+  .t1 .status-bar { background: #FDFAF5; color: #2C1F14; }
+  .t1 .nav-header { background: #FDFAF5; color: #2C1F14; border-bottom-color: #DDD0C0; }
+  .t1 .section-sep { color: #7D6B5E; background: #FDFAF5; }
+  .t1 .card { background: #FFFFFF; }
+  .t1 .card-thumb { background: #E8DFD0; }
+  .t1 .card-name { color: #2C1F14; }
+  .t1 .card-badge { background: #F5EDE6; color: #5C4033; }
+  .t1 .card-sub { color: #7D6B5E; }
+  .t1 .stars { color: #C4913A; }
+  .t1 .card-meta { color: #B5A396; }
+  .t1 .cellar-qty { background: #5C4033; color: white; }
+  .t1 .apogee-chip { border-color: #5A7A4A; color: #5A7A4A; }
+  .t1 .stat-block { background: white; border-color: #DDD0C0; }
+  .t1 .stat-number { color: #5C4033; }
+  .t1 .stat-label { color: #7D6B5E; }
+  .t1 .stat-mini { background: white; border-color: #DDD0C0; }
+  .t1 .stat-mini-num { color: #5C4033; }
+  .t1 .stat-mini-label { color: #7D6B5E; }
+  .t1 .fab { background: #5C4033; }
+  .t1 .tab-bar { background: white; border-top-color: #DDD0C0; }
+  .t1 .tab-label { color: #B5A396; }
+  .t1 .tab-label.active { color: #5C4033; }
+  .t1 .tab-icon { opacity: 0.5; }
+  .t1 .tab-icon.active { opacity: 1; }
+
+  /* ═══════════════════════════════════════════════
+     THEME 2 — Cave à Vin
+  ═══════════════════════════════════════════════ */
+  .t2 { background: #FBF8F4; }
+  .t2 .status-bar { background: #FBF8F4; color: #1C1410; }
+  .t2 .nav-header { background: #FBF8F4; color: #1C1410; border-bottom-color: #DDD0C0; }
+  .t2 .section-sep { color: #7A6A60; background: #FBF8F4; }
+  .t2 .card { background: #FFFFFF; }
+  .t2 .card-thumb { background: #E5D9CC; }
+  .t2 .card-name { color: #1C1410; }
+  .t2 .card-badge { background: #F8EFF2; color: #8B1A2C; }
+  .t2 .card-sub { color: #7A6A60; }
+  .t2 .stars { color: #D4A843; }
+  .t2 .card-meta { color: #B0988A; }
+  .t2 .cellar-qty { background: #8B1A2C; color: white; }
+  .t2 .apogee-chip { border-color: #3D7854; color: #3D7854; }
+  .t2 .stat-block { background: white; border-color: #DDD0C0; }
+  .t2 .stat-number { color: #8B1A2C; }
+  .t2 .stat-label { color: #7A6A60; }
+  .t2 .stat-mini { background: white; border-color: #DDD0C0; }
+  .t2 .stat-mini-num { color: #8B1A2C; }
+  .t2 .stat-mini-label { color: #7A6A60; }
+  .t2 .fab { background: #8B1A2C; }
+  .t2 .tab-bar { background: white; border-top-color: #DDD0C0; }
+  .t2 .tab-label { color: #B0988A; }
+  .t2 .tab-label.active { color: #8B1A2C; }
+  .t2 .tab-icon { opacity: 0.5; }
+  .t2 .tab-icon.active { opacity: 1; }
+
+  /* ═══════════════════════════════════════════════
+     THEME 3 — Bistrot Parisien
+  ═══════════════════════════════════════════════ */
+  .t3 { background: #FEFCF8; }
+  .t3 .status-bar { background: #FEFCF8; color: #231A10; }
+  .t3 .nav-header { background: #FEFCF8; color: #231A10; border-bottom-color: #E0D4C4; }
+  .t3 .section-sep { color: #8C7060; background: #FEFCF8; }
+  .t3 .card { background: #FFFFFF; }
+  .t3 .card-thumb { background: #EDE4D6; }
+  .t3 .card-name { color: #231A10; }
+  .t3 .card-badge { background: #F7EDE3; color: #6B4226; }
+  .t3 .card-sub { color: #8C7060; }
+  .t3 .stars { color: #C8952A; }
+  .t3 .card-meta { color: #B8A090; }
+  .t3 .cellar-qty { background: #6B4226; color: white; }
+  .t3 .apogee-chip { border-color: #2E8B6A; color: #2E8B6A; }
+  .t3 .stat-block { background: white; border-color: #E0D4C4; }
+  .t3 .stat-number { color: #6B4226; }
+  .t3 .stat-label { color: #8C7060; }
+  .t3 .stat-mini { background: white; border-color: #E0D4C4; }
+  .t3 .stat-mini-num { color: #6B4226; }
+  .t3 .stat-mini-label { color: #8C7060; }
+  .t3 .fab { background: #6B4226; }
+  .t3 .tab-bar { background: white; border-top-color: #E0D4C4; }
+  .t3 .tab-label { color: #B8A090; }
+  .t3 .tab-label.active { color: #6B4226; }
+  .t3 .tab-icon { opacity: 0.5; }
+  .t3 .tab-icon.active { opacity: 1; }
+
+  /* ═══════════════════════════════════════════════
+     THEME 4 — Domaine
+  ═══════════════════════════════════════════════ */
+  .t4 { background: #FDF8F6; }
+  .t4 .status-bar { background: #FDF8F6; color: #241420; }
+  .t4 .nav-header { background: #FDF8F6; color: #241420; border-bottom-color: #E5D5D0; }
+  .t4 .section-sep { color: #846070; background: #FDF8F6; }
+  .t4 .card { background: #FFFFFF; }
+  .t4 .card-thumb { background: #EDE0DA; }
+  .t4 .card-name { color: #241420; }
+  .t4 .card-badge { background: #F5ECF0; color: #6B2D45; }
+  .t4 .card-sub { color: #846070; }
+  .t4 .stars { color: #C8A04A; }
+  .t4 .card-meta { color: #B89AA4; }
+  .t4 .cellar-qty { background: #6B2D45; color: white; }
+  .t4 .apogee-chip { border-color: #487A5A; color: #487A5A; }
+  .t4 .stat-block { background: white; border-color: #E5D5D0; }
+  .t4 .stat-number { color: #6B2D45; }
+  .t4 .stat-label { color: #846070; }
+  .t4 .stat-mini { background: white; border-color: #E5D5D0; }
+  .t4 .stat-mini-num { color: #6B2D45; }
+  .t4 .stat-mini-label { color: #846070; }
+  .t4 .fab { background: #6B2D45; }
+  .t4 .tab-bar { background: white; border-top-color: #E5D5D0; }
+  .t4 .tab-label { color: #B89AA4; }
+  .t4 .tab-label.active { color: #6B2D45; }
+  .t4 .tab-icon { opacity: 0.5; }
+  .t4 .tab-icon.active { opacity: 1; }
+
+  /* ── Current theme (reference) ──── */
+  .t0 { background: #F8F5F0; }
+  .t0 .status-bar { background: #F8F5F0; color: #1A1A1A; }
+  .t0 .nav-header { background: #FFFFFF; color: #1A1A1A; border-bottom-color: #E5DDD5; }
+  .t0 .section-sep { color: #8A8A8A; background: #F8F5F0; }
+  .t0 .card { background: #FFFFFF; }
+  .t0 .card-thumb { background: #F0EBE3; }
+  .t0 .card-name { color: #1A1A1A; }
+  .t0 .card-badge { background: #F5EEF0; color: #722F37; }
+  .t0 .card-sub { color: #8A8A8A; }
+  .t0 .stars { color: #C9A84C; }
+  .t0 .card-meta { color: #B0A8A0; }
+  .t0 .cellar-qty { background: #722F37; color: white; }
+  .t0 .apogee-chip { border-color: #4A9060; color: #4A9060; }
+  .t0 .stat-block { background: white; border-color: #E5DDD5; }
+  .t0 .stat-number { color: #722F37; }
+  .t0 .stat-label { color: #8A8A8A; }
+  .t0 .stat-mini { background: white; border-color: #E5DDD5; }
+  .t0 .stat-mini-num { color: #722F37; }
+  .t0 .stat-mini-label { color: #8A8A8A; }
+  .t0 .fab { background: #722F37; }
+  .t0 .tab-bar { background: white; border-top-color: #E5DDD5; }
+  .t0 .tab-label { color: #B0A8A0; }
+  .t0 .tab-label.active { color: #722F37; }
+  .t0 .tab-icon { opacity: 0.5; }
+  .t0 .tab-icon.active { opacity: 1; }
+
+  .theme-badge {
+    display: inline-block;
+    background: #333;
+    color: #aaa;
+    font-size: 10px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+  .palette {
+    display: flex;
+    gap: 4px;
+    margin-top: 6px;
+  }
+  .swatch {
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+</style>
+</head>
+<body>
+
+<h1>MyVine — Aperçu des thèmes</h1>
+<p class="subtitle">Faites défiler pour comparer · Thème actuel affiché en premier</p>
+
+<div class="themes-grid">
+
+  <!-- ── CURRENT ─────────────────────────────────── -->
+  <div class="theme-col">
+    <div class="theme-label">Actuel</div>
+    <div class="palette">
+      <div class="swatch" style="background:#722F37"></div>
+      <div class="swatch" style="background:#F8F5F0"></div>
+      <div class="swatch" style="background:#F0EBE3"></div>
+      <div class="swatch" style="background:#C9A84C"></div>
+      <div class="swatch" style="background:#4A9060"></div>
+    </div>
+    <div class="phone">
+      <div class="t0 screen">
+        <div class="status-bar t0">
+          <span class="status-time">9:41</span>
+          <span class="status-icons">▲ ◉ ▮▮▮</span>
+        </div>
+        <div class="nav-header t0">Ma cave</div>
+        <div class="scroll-area t0">
+          <div class="section-sep t0">Dégustations récentes</div>
+
+          <div class="card t0">
+            <div class="card-thumb t0">🍷</div>
+            <div class="card-body">
+              <div class="card-row">
+                <span class="card-name t0">Château Pichon 2018</span>
+                <span class="card-badge t0">↺</span>
+              </div>
+              <div class="card-sub t0">Pichon Longueville · Pauillac</div>
+              <div class="card-footer">
+                <div class="stars t0">★★★★☆</div>
+                <div class="card-meta t0">Restaurant · 12 mars 2025</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card t0">
+            <div class="card-thumb t0">🍷</div>
+            <div class="card-body">
+              <div class="card-row">
+                <span class="card-name t0">Côte-Rôtie La Landonne</span>
+              </div>
+              <div class="card-sub t0">E. Guigal · Côte-Rôtie</div>
+              <div class="card-footer">
+                <div class="stars t0">★★★★★</div>
+                <div class="card-meta t0">À la maison · 2 fév. 2025</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="section-sep t0">Ma cave</div>
+
+          <div class="card t0">
+            <div class="card-thumb t0">🍾</div>
+            <div class="card-body">
+              <div class="card-row">
+                <span class="card-name t0">Vieux Château Certan</span>
+                <span class="cellar-qty t0">6</span>
+              </div>
+              <div class="card-sub t0">VCC · Pomerol</div>
+              <div class="card-footer">
+                <span class="apogee-chip t0">✦ 2024 – 2035</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="card t0">
+            <div class="card-thumb t0">🍾</div>
+            <div class="card-body">
+              <div class="card-row">
+                <span class="card-name t0">Meursault Charmes 2020</span>
+                <span class="cellar-qty t0">3</span>
+              </div>
+              <div class="card-sub t0">Roulot · Meursault</div>
+              <div class="card-footer">
+                <span class="apogee-chip t0">◎ 2026 – 2032</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="fab t0">+</div>
+        <div class="tab-bar t0">
+          <div class="tab">
+            <span class="tab-icon active t0">🏛️</span>
+            <span class="tab-label active t0">Cave</span>
+          </div>
+          <div class="tab">
+            <span class="tab-icon t0">🍷</span>
+            <span class="tab-label t0">Dégust.</span>
+          </div>
+          <div class="tab">
+            <span class="tab-icon t0">🔍</span>
+            <span class="tab-label t0">Recherche</span>
+          </div>
+          <div class="tab">
+            <span class="tab-icon t0">📊</span>
+            <span class="tab-label t0">Stats</span>
+          </div>
+          <div class="tab">
+            <span class="tab-icon t0">⚙️</span>
+            <span class="tab-label t0">Param.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── THEME 1 — Terroir ─────────────────────── -->
+  <div class="theme-col">
+    <div class="theme-label">1 — Terroir 🌿</div>
+    <div class="palette">
+      <div class="swatch" style="background:#5C4033"></div>
+      <div class="swatch" style="background:#FDFAF5"></div>
+      <div class="swatch" style="background:#E8DFD0"></div>
+      <div class="swatch" style="background:#C4913A"></div>
+      <div class="swatch" style="background:#5A7A4A"></div>
+    </div>
+    <div class="phone">
+      <div class="t1 screen">
+        <div class="status-bar t1">
+          <span class="status-time">9:41</span>
+          <span class="status-icons">▲ ◉ ▮▮▮</span>
+        </div>
+        <div class="nav-header t1">Ma cave</div>
+        <div class="scroll-area t1">
+          <div class="section-sep t1">Dégustations récentes</div>
+
+          <div class="card t1">
+            <div class="card-thumb t1">🍷</div>
+            <div class="card-body">
+              <div class="card-row">
+                <span class="card-name t1">Château Pichon 2018</span>
+                <span class="card-badge t1">↺</span>
+              </div>
+              <div class="card-sub t1">Pichon Longueville · Pauillac</div>
+              <div class="card-footer">
+                <div class="stars t1">★★★★☆</div>
+                <div class="card-meta t1">Restaurant · 12 mars 2025</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card t1">
+            <div class="card-thumb t1">🍷</div>
+            <div class="card-body">
+              <div class="card-row">
+                <span class="card-name t1">Côte-Rôtie La Landonne</span>
+              </div>
+              <div class="card-sub t1">E. Guigal · Côte-Rôtie</div>
+              <div class="card-footer">
+                <div class="stars t1">★★★★★</div>
+                <div class="card-meta t1">À la maison · 2 fév. 2025</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="section-sep t1">Ma cave</div>
+
+          <div class="card t1">
+            <div class="card-thumb t1">🍾</div>
+            <div class="card-body">
+              <div class="card-row">
+                <span class="card-name t1">Vieux Château Certan</span>
+                <span class="cellar-qty t1">6</span>
+              </div>
+              <div class="card-sub t1">VCC · Pomerol</div>
+              <div class="card-footer">
+                <span class="apogee-chip t1">✦ 2024 – 2035</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="card t1">
+            <div class="card-thumb t1">🍾</div>
+            <div class="card-body">
+              <div class="card-row">
+                <span class="card-name t1">Meursault Charmes 2020</span>
+                <span class="cellar-qty t1">3</span>
+              </div>
+              <div class="card-sub t1">Roulot · Meursault</div>
+              <div class="card-footer">
+                <span class="apogee-chip t1">◎ 2026 – 2032</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="fab t1">+</div>
+        <div class="tab-bar t1">
+          <div class="tab">
+            <span class="tab-icon active t1">🏛️</span>
+            <span class="tab-label active t1">Cave</span>
+          </div>
+          <div class="tab">
+            <span class="tab-icon t1">🍷</span>
+            <span class="tab-label t1">Dégust.</span>
+          </div>
+          <div class="tab">
+            <span class="tab-icon t1">🔍</span>
+            <span class="tab-label t1">Recherche</span>
+          </div>
+          <div class="tab">
+            <span class="tab-icon t1">📊</span>
+            <span class="tab-label t1">Stats</span>
+          </div>
+          <div class="tab">
+            <span class="tab-icon t1">⚙️</span>
+            <span class="tab-label t1">Param.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── THEME 2 — Cave à Vin ───────────────────── -->
+  <div class="theme-col">
+    <div class="theme-label">2 — Cave à Vin 🍷</div>
+    <div class="palette">
+      <div class="swatch" style="background:#8B1A2C"></div>
+      <div class="swatch" style="background:#FBF8F4"></div>
+      <div class="swatch" style="background:#E5D9CC"></div>
+      <div class="swatch" style="background:#D4A843"></div>
+      <div class="swatch" style="background:#3D7854"></div>
+    </div>
+    <div class="phone">
+      <div class="t2 screen">
+        <div class="status-bar t2">
+          <span class="status-time">9:41</span>
+          <span class="status-icons">▲ ◉ ▮▮▮</span>
+        </div>
+        <div class="nav-header t2">Ma cave</div>
+        <div class="scroll-area t2">
+          <div class="section-sep t2">Dégustations récentes</div>
+
+          <div class="card t2">
+            <div class="card-thumb t2">🍷</div>
+            <div class="card-body">
+              <div class="card-row">
+                <span class="card-name t2">Château Pichon 2018</span>
+                <span class="card-badge t2">↺</span>
+              </div>
+              <div class="card-sub t2">Pichon Longueville · Pauillac</div>
+              <div class="card-footer">
+                <div class="stars t2">★★★★☆</div>
+                <div class="card-meta t2">Restaurant · 12 mars 2025</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card t2">
+            <div class="card-thumb t2">🍷</div>
+            <div class="card-body">
+              <div class="card-row">
+                <span class="card-name t2">Côte-Rôtie La Landonne</span>
+              </div>
+              <div class="card-sub t2">E. Guigal · Côte-Rôtie</div>
+              <div class="card-footer">
+                <div class="stars t2">★★★★★</div>
+                <div class="card-meta t2">À la maison · 2 fév. 2025</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="section-sep t2">Ma cave</div>
+
+          <div class="card t2">
+            <div class="card-thumb t2">🍾</div>
+            <div class="card-body">
+              <div class="card-row">
+                <span class="card-name t2">Vieux Château Certan</span>
+                <span class="cellar-qty t2">6</span>
+              </div>
+              <div class="card-sub t2">VCC · Pomerol</div>
+              <div class="card-footer">
+                <span class="apogee-chip t2">✦ 2024 – 2035</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="card t2">
+            <div class="card-thumb t2">🍾</div>
+            <div class="card-body">
+              <div class="card-row">
+                <span class="card-name t2">Meursault Charmes 2020</span>
+                <span class="cellar-qty t2">3</span>
+              </div>
+              <div class="card-sub t2">Roulot · Meursault</div>
+              <div class="card-footer">
+                <span class="apogee-chip t2">◎ 2026 – 2032</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="fab t2">+</div>
+        <div class="tab-bar t2">
+          <div class="tab">
+            <span class="tab-icon active t2">🏛️</span>
+            <span class="tab-label active t2">Cave</span>
+          </div>
+          <div class="tab">
+            <span class="tab-icon t2">🍷</span>
+            <span class="tab-label t2">Dégust.</span>
+          </div>
+          <div class="tab">
+            <span class="tab-icon t2">🔍</span>
+            <span class="tab-label t2">Recherche</span>
+          </div>
+          <div class="tab">
+            <span class="tab-icon t2">📊</span>
+            <span class="tab-label t2">Stats</span>
+          </div>
+          <div class="tab">
+            <span class="tab-icon t2">⚙️</span>
+            <span class="tab-label t2">Param.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── THEME 3 — Bistrot Parisien ────────────── -->
+  <div class="theme-col">
+    <div class="theme-label">3 — Bistrot Parisien ☕</div>
+    <div class="palette">
+      <div class="swatch" style="background:#6B4226"></div>
+      <div class="swatch" style="background:#FEFCF8"></div>
+      <div class="swatch" style="background:#EDE4D6"></div>
+      <div class="swatch" style="background:#C8952A"></div>
+      <div class="swatch" style="background:#2E8B6A"></div>
+    </div>
+    <div class="phone">
+      <div class="t3 screen">
+        <div class="status-bar t3">
+          <span class="status-time">9:41</span>
+          <span class="status-icons">▲ ◉ ▮▮▮</span>
+        </div>
+        <div class="nav-header t3">Ma cave</div>
+        <div class="scroll-area t3">
+          <div class="section-sep t3">Dégustations récentes</div>
+
+          <div class="card t3">
+            <div class="card-thumb t3">🍷</div>
+            <div class="card-body">
+              <div class="card-row">
+                <span class="card-name t3">Château Pichon 2018</span>
+                <span class="card-badge t3">↺</span>
+              </div>
+              <div class="card-sub t3">Pichon Longueville · Pauillac</div>
+              <div class="card-footer">
+                <div class="stars t3">★★★★☆</div>
+                <div class="card-meta t3">Restaurant · 12 mars 2025</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card t3">
+            <div class="card-thumb t3">🍷</div>
+            <div class="card-body">
+              <div class="card-row">
+                <span class="card-name t3">Côte-Rôtie La Landonne</span>
+              </div>
+              <div class="card-sub t3">E. Guigal · Côte-Rôtie</div>
+              <div class="card-footer">
+                <div class="stars t3">★★★★★</div>
+                <div class="card-meta t3">À la maison · 2 fév. 2025</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="section-sep t3">Ma cave</div>
+
+          <div class="card t3">
+            <div class="card-thumb t3">🍾</div>
+            <div class="card-body">
+              <div class="card-row">
+                <span class="card-name t3">Vieux Château Certan</span>
+                <span class="cellar-qty t3">6</span>
+              </div>
+              <div class="card-sub t3">VCC · Pomerol</div>
+              <div class="card-footer">
+                <span class="apogee-chip t3">✦ 2024 – 2035</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="card t3">
+            <div class="card-thumb t3">🍾</div>
+            <div class="card-body">
+              <div class="card-row">
+                <span class="card-name t3">Meursault Charmes 2020</span>
+                <span class="cellar-qty t3">3</span>
+              </div>
+              <div class="card-sub t3">Roulot · Meursault</div>
+              <div class="card-footer">
+                <span class="apogee-chip t3">◎ 2026 – 2032</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="fab t3">+</div>
+        <div class="tab-bar t3">
+          <div class="tab">
+            <span class="tab-icon active t3">🏛️</span>
+            <span class="tab-label active t3">Cave</span>
+          </div>
+          <div class="tab">
+            <span class="tab-icon t3">🍷</span>
+            <span class="tab-label t3">Dégust.</span>
+          </div>
+          <div class="tab">
+            <span class="tab-icon t3">🔍</span>
+            <span class="tab-label t3">Recherche</span>
+          </div>
+          <div class="tab">
+            <span class="tab-icon t3">📊</span>
+            <span class="tab-label t3">Stats</span>
+          </div>
+          <div class="tab">
+            <span class="tab-icon t3">⚙️</span>
+            <span class="tab-label t3">Param.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── THEME 4 — Domaine ──────────────────────── -->
+  <div class="theme-col">
+    <div class="theme-label">4 — Domaine 🏠</div>
+    <div class="palette">
+      <div class="swatch" style="background:#6B2D45"></div>
+      <div class="swatch" style="background:#FDF8F6"></div>
+      <div class="swatch" style="background:#EDE0DA"></div>
+      <div class="swatch" style="background:#C8A04A"></div>
+      <div class="swatch" style="background:#487A5A"></div>
+    </div>
+    <div class="phone">
+      <div class="t4 screen">
+        <div class="status-bar t4">
+          <span class="status-time">9:41</span>
+          <span class="status-icons">▲ ◉ ▮▮▮</span>
+        </div>
+        <div class="nav-header t4">Ma cave</div>
+        <div class="scroll-area t4">
+          <div class="section-sep t4">Dégustations récentes</div>
+
+          <div class="card t4">
+            <div class="card-thumb t4">🍷</div>
+            <div class="card-body">
+              <div class="card-row">
+                <span class="card-name t4">Château Pichon 2018</span>
+                <span class="card-badge t4">↺</span>
+              </div>
+              <div class="card-sub t4">Pichon Longueville · Pauillac</div>
+              <div class="card-footer">
+                <div class="stars t4">★★★★☆</div>
+                <div class="card-meta t4">Restaurant · 12 mars 2025</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card t4">
+            <div class="card-thumb t4">🍷</div>
+            <div class="card-body">
+              <div class="card-row">
+                <span class="card-name t4">Côte-Rôtie La Landonne</span>
+              </div>
+              <div class="card-sub t4">E. Guigal · Côte-Rôtie</div>
+              <div class="card-footer">
+                <div class="stars t4">★★★★★</div>
+                <div class="card-meta t4">À la maison · 2 fév. 2025</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="section-sep t4">Ma cave</div>
+
+          <div class="card t4">
+            <div class="card-thumb t4">🍾</div>
+            <div class="card-body">
+              <div class="card-row">
+                <span class="card-name t4">Vieux Château Certan</span>
+                <span class="cellar-qty t4">6</span>
+              </div>
+              <div class="card-sub t4">VCC · Pomerol</div>
+              <div class="card-footer">
+                <span class="apogee-chip t4">✦ 2024 – 2035</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="card t4">
+            <div class="card-thumb t4">🍾</div>
+            <div class="card-body">
+              <div class="card-row">
+                <span class="card-name t4">Meursault Charmes 2020</span>
+                <span class="cellar-qty t4">3</span>
+              </div>
+              <div class="card-sub t4">Roulot · Meursault</div>
+              <div class="card-footer">
+                <span class="apogee-chip t4">◎ 2026 – 2032</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="fab t4">+</div>
+        <div class="tab-bar t4">
+          <div class="tab">
+            <span class="tab-icon active t4">🏛️</span>
+            <span class="tab-label active t4">Cave</span>
+          </div>
+          <div class="tab">
+            <span class="tab-icon t4">🍷</span>
+            <span class="tab-label t4">Dégust.</span>
+          </div>
+          <div class="tab">
+            <span class="tab-icon t4">🔍</span>
+            <span class="tab-label t4">Recherche</span>
+          </div>
+          <div class="tab">
+            <span class="tab-icon t4">📊</span>
+            <span class="tab-label t4">Stats</span>
+          </div>
+          <div class="tab">
+            <span class="tab-icon t4">⚙️</span>
+            <span class="tab-label t4">Param.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<p style="text-align:center;color:#555;font-size:12px;margin-top:40px;">
+  Dis-moi ton préféré (ou un mélange) → j'applique le thème choisi dans tokens.ts
+</p>
+</body>
+</html>
