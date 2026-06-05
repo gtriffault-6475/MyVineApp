@@ -6,17 +6,21 @@ import { useNavigation, useRoute, NavigatorScreenParams, RouteProp } from '@reac
 import { colors } from '@/components/ui/tokens';
 
 import { CellarScreen } from '@/screens/CellarScreen';
+import { DegustationsScreen } from '@/screens/DegustationsScreen';
 import { SearchScreen } from '@/screens/SearchScreen';
 import { StatsScreen } from '@/screens/StatsScreen';
 import { SettingsScreen } from '@/screens/SettingsScreen';
 import { WineDetailScreen } from '@/screens/WineDetailScreen';
 import { WineEditScreen } from '@/screens/WineEditScreen';
 import { AddScreen } from '@/screens/AddScreen';
+import { CellarDetailScreen } from '@/screens/CellarDetailScreen';
+import { AddCellarEntryScreen } from '@/screens/AddCellarEntryScreen';
 
 // ─── Param lists ─────────────────────────────────────────────────────────────
 
 export type MainTabParamList = {
   CellarTab: undefined;
+  DegustationsTab: undefined;
   Search: undefined;
   Stats: undefined;
   Settings: undefined;
@@ -26,7 +30,9 @@ export type RootStackParamList = {
   MainTabs: NavigatorScreenParams<MainTabParamList>;
   WineDetail: { wineId: number };
   WineEdit: { wineId: number };
-  AddWine: undefined;
+  AddWine: { cellarId?: number } | undefined;
+  CellarDetail: { cellarId: number };
+  AddCellarEntry: { entryId?: number };
 };
 
 // ─── Navigators ──────────────────────────────────────────────────────────────
@@ -69,6 +75,15 @@ function MainTabNavigator() {
         options={{
           title: 'Ma cave',
           tabBarLabel: 'Cave',
+          tabBarIcon: ({ focused }) => <TabIcon emoji="🏛️" focused={focused} />,
+        }}
+      />
+      <Tab.Screen
+        name="DegustationsTab"
+        component={DegustationsScreen}
+        options={{
+          title: 'Dégustations',
+          tabBarLabel: 'Dégustations',
           tabBarIcon: ({ focused }) => <TabIcon emoji="🍷" focused={focused} />,
         }}
       />
@@ -136,9 +151,23 @@ export function RootNavigator() {
         component={AddScreen}
         options={{
           presentation: 'modal',
-          title: 'Ajouter un vin',
+          title: 'Ajouter une dégustation',
           headerLeft: () => null,
         }}
+      />
+      <RootStack.Screen
+        name="CellarDetail"
+        component={CellarDetailScreen}
+        options={{ title: '' }}
+      />
+      <RootStack.Screen
+        name="AddCellarEntry"
+        component={AddCellarEntryScreen}
+        options={({ route }) => ({
+          presentation: 'modal',
+          title: route.params?.entryId ? 'Modifier la bouteille' : 'Ajouter à la cave',
+          headerLeft: () => null,
+        })}
       />
     </RootStack.Navigator>
   );

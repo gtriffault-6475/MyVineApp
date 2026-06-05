@@ -2,6 +2,7 @@ import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { WineProvider } from '@/context/WineContext';
+import { CellarProvider } from '@/context/CellarContext';
 import { RootNavigator } from '@/navigation';
 
 export default function App() {
@@ -9,7 +10,9 @@ export default function App() {
     <SafeAreaProvider>
       <NavigationContainer>
         <WineProvider>
-          <RootNavigator />
+          <CellarProvider>
+            <RootNavigator />
+          </CellarProvider>
         </WineProvider>
       </NavigationContainer>
     </SafeAreaProvider>

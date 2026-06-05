@@ -11,6 +11,7 @@ import { colors, spacing, font, radius } from './ui/tokens';
 
 interface Props {
   label?: string;
+  modalTitle?: string;
   value: string;
   onChange: (value: string) => void;
   error?: string;
@@ -36,7 +37,7 @@ function toISODate(date: Date): string {
   return `${y}-${m}-${d}`;
 }
 
-export function DatePickerField({ label = 'Date', value, onChange, error }: Props) {
+export function DatePickerField({ label = 'Date', modalTitle, value, onChange, error }: Props) {
   const [open, setOpen] = useState(false);
   const [tempDate, setTempDate] = useState<Date>(new Date());
 
@@ -86,7 +87,7 @@ export function DatePickerField({ label = 'Date', value, onChange, error }: Prop
               <TouchableOpacity onPress={handleClear} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
                 <Text style={styles.clearBtn}>Effacer</Text>
               </TouchableOpacity>
-              <Text style={styles.sheetTitle}>Date de dégustation</Text>
+              <Text style={styles.sheetTitle}>{modalTitle ?? 'Sélectionner une date'}</Text>
               <TouchableOpacity onPress={handleConfirm} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
                 <Text style={styles.confirmBtn}>Confirmer</Text>
               </TouchableOpacity>

@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { Alert } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { WineForm } from '@/components/WineForm';
 import { useWineForm, EMPTY_FORM } from '@/hooks/useWineForm';
 import { useImagePicker } from '@/hooks/useImagePicker';
 import { useWineContext } from '@/context/WineContext';
+import { useCellarContext } from '@/context/CellarContext';
 import { getDb } from '@/db/database';
 import { insertWine, getWineById } from '@/db/queries';
 import { wineFormToDb } from '@/types/wine';
@@ -14,8 +15,28 @@ import type { RootStackParamList } from '@/navigation';
 
 export function AddScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const route = useRoute<RouteProp<RootStackParamList, 'AddWine'>>();
+  const cellarId = route.params?.cellarId;
+
   const { dispatch } = useWineContext();
-  const { form, errors, update, validate } = useWineForm(EMPTY_FORM);
+  const { state: cellarState } = useCellarContext();
+
+  const cellarEntry = cellarId
+    ? cellarState.entries.find((e) => e.id === cellarId)
+    : null;
+
+  const initialForm = cellarEntry
+    ? {
+        ...EMPTY_FORM,
+        name: cellarEntry.name,
+        producer: cellarEntry.producer ?? '',
+        appellation: cellarEntry.appellation ?? '',
+        vintage: cellarEntry.vintage ?? '',
+        cellar_id: cellarEntry.id,
+      }
+    : EMPTY_FORM;
+
+  const { form, errors, update, validate } = useWineForm(initialForm);
   const { pickFromLibrary, pickFromCamera, toFullUri } = useImagePicker();
   const [submitting, setSubmitting] = useState(false);
   const [analyzing, setAnalyzing] = useState(false);

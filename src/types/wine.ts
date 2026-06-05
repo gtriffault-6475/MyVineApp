@@ -45,6 +45,7 @@ export interface Wine {
   comment: string | null;
   companion: string | null;
   buy_again: 0 | 1;
+  cellar_id: number | null;
   created_at: string;
   updated_at: string;
 }
@@ -63,6 +64,7 @@ export interface WineForm {
   comment: string;
   companion: string;
   buy_again: boolean;
+  cellar_id: number | null;
 }
 
 export interface WineStats {
@@ -89,6 +91,7 @@ export function wineFormToDb(form: WineForm): Omit<Wine, 'id' | 'created_at' | '
     comment: form.comment.trim() || null,
     companion: form.companion.trim() || null,
     buy_again: form.buy_again ? 1 : 0,
+    cellar_id: form.cellar_id,
   };
 }
 
@@ -107,5 +110,6 @@ export function wineToForm(wine: Wine): WineForm {
     comment: wine.comment ?? '',
     companion: wine.companion ?? '',
     buy_again: wine.buy_again === 1,
+    cellar_id: wine.cellar_id,
   };
 }

@@ -1,6 +1,7 @@
-import SQLite, { SQLiteDatabase } from 'react-native-sqlite-storage';
+import { SQLiteDatabase } from 'react-native-sqlite-storage';
 import {
   CREATE_WINES_TABLE,
+  CREATE_CELLAR_TABLE,
   CREATE_INDEXES,
   CREATE_META_TABLE,
   DB_VERSION,
@@ -19,7 +20,6 @@ export async function runMigrations(db: SQLiteDatabase): Promise<void> {
 
   if (currentVersion < 1) {
     await db.executeSql(CREATE_WINES_TABLE);
-    // executeSql handles one statement at a time; split the index statements
     const indexStatements = CREATE_INDEXES
       .split(';')
       .map((s) => s.trim())
@@ -29,10 +29,13 @@ export async function runMigrations(db: SQLiteDatabase): Promise<void> {
     }
   }
 
-  // Only runs when upgrading an existing v1 install — fresh installs already
-  // have this column because CREATE_WINES_TABLE includes it from v2 onward.
   if (currentVersion >= 1 && currentVersion < 2) {
     await db.executeSql(`ALTER TABLE wines ADD COLUMN companion TEXT`);
+  }
+
+  if (currentVersion >= 2 && currentVersion < 3) {
+    await db.executeSql(CREATE_CELLAR_TABLE);
+    await db.executeSql(`ALTER TABLE wines ADD COLUMN cellar_id INTEGER`);
   }
 
   await db.executeSql(

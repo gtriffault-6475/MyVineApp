@@ -1,55 +1,71 @@
 # MyVine — Backlog
 
-## Fonctionnalités à venir
+## En cours
 
 ---
 
-### EPIC : Autocomplete restaurant via API ouverte
+### EPIC : Gestion de cave
 
-**Objectif**
-Quand l'utilisateur saisit un restaurant dans le formulaire, proposer des suggestions en temps réel issues d'une API publique pour normaliser le nom et éviter les doublons.
+**Décisions de design**
+- Navigation : 5 tabs (Cave | Dégustations | Recherche | Stats | Paramètres)
+- Tab journal renommé : "Dégustations"
+- Apogée : toujours affichée dans le formulaire
+- Ouverture bouteille : décrémente même sans dégustation créée
+- Prix : stockage prix d'achat uniquement
 
-**Faisabilité : OUI — complexité modérée**
+**Features MVP**
 
-Ce qui facilite l'implémentation :
-- Le champ `restaurant_name` est déjà isolé dans le formulaire (1 seul point de changement)
-- Un pattern de debounce identique est déjà utilisé dans `SearchScreen.tsx`
-- L'architecture réseau est en place (`fetch` dans `wineRecognition.ts`)
-- La gestion de clés API sécurisée (Keychain) est déjà là
+- F1 — Inventaire : ajouter / modifier / supprimer une bouteille en cave
+- F2 — Consultation : liste avec quantité, badge apogée, recherche, tri
+- F3 — Consommation : "Ouvrir une bouteille" → décrémente → propose une dégustation
+- F4 — Lien cave ↔ dégustation : champ optionnel "Depuis ma cave" dans le formulaire de dégustation, pré-remplissage des champs vin
 
-Seul risque technique : afficher un dropdown dans un `ScrollView`. Solution connue : overlay en position absolue avec `zIndex` élevé.
+**Modèle de données**
 
-**API retenue : Foursquare Places**
-Gratuit jusqu'à 1 000 requêtes/jour, excellente couverture des restaurants français, endpoint d'autocomplete dédié. La clé API serait saisie dans l'écran Paramètres (même pattern que la clé Anthropic).
+Nouvelle table `cellar` :
 
-| API | Coût | Clé requise | Qualité FR |
-|-----|------|-------------|------------|
-| **Foursquare Places** | Gratuit (1 000 req/j) | Oui | Très bonne |
-| Google Places | Gratuit jusqu'à 28 k/mois | Oui (CB) | Excellente |
-| Nominatim (OSM) | Gratuit, illimité | Non | Correcte |
+| Champ | Type |
+|-------|------|
+| id | INTEGER PK |
+| name | TEXT NOT NULL |
+| producer | TEXT |
+| appellation | TEXT |
+| vintage | TEXT |
+| quantity | INTEGER |
+| quantity_initial | INTEGER |
+| purchase_date | TEXT (YYYY-MM-DD) |
+| purchase_price | REAL |
+| optimal_from | INTEGER (année) |
+| optimal_to | INTEGER (année) |
+| storage_location | TEXT |
+| notes | TEXT |
+| photo_uri | TEXT |
+| archived | INTEGER (0/1) |
+| created_at | TEXT |
+| updated_at | TEXT |
 
-**User stories**
+Modification table `wines` : ajout colonne `cellar_id INTEGER` (FK optionnelle vers cellar.id)
 
-1. **Saisie avec suggestions** — En tant qu'utilisateur, quand je tape le nom d'un restaurant, je vois une liste de suggestions apparaître sous le champ après 2-3 caractères, sans quitter le formulaire.
+DB_VERSION : 2 → 3
 
-2. **Sélection d'une suggestion** — En tant qu'utilisateur, quand je sélectionne une suggestion, le champ se remplit avec le nom normalisé. Si l'API renvoie une adresse, elle est affichée sous le nom à titre informatif (non stockée).
+**Nouveaux écrans**
+- CellarListScreen — liste des bouteilles en cave (remplace l'actuel CellarScreen)
+- CellarDetailScreen — détail d'une bouteille + historique dégustations liées
+- AddCellarEntryScreen — formulaire ajout/modification (modal)
+- DegustationsScreen — renommage de l'actuel CellarScreen
 
-3. **Saisie manuelle conservée** — En tant qu'utilisateur, je peux continuer à taper librement sans sélectionner de suggestion. La saisie manuelle reste toujours possible.
+**Périmètre V2**
+- Stats cave (valeur estimée du stock, répartition par appellation)
+- Alertes apogée dépassée
+- Tri avancé
 
-4. **Clé API optionnelle** — En tant qu'utilisateur, si aucune clé Foursquare n'est configurée dans les Paramètres, le champ se comporte comme aujourd'hui (simple TextInput), sans erreur.
+---
 
-5. **Gestion hors ligne** — En tant qu'utilisateur, si le réseau est indisponible, les suggestions sont silencieusement désactivées et la saisie manuelle reste fonctionnelle.
+## Backlog
 
-**Périmètre technique**
-- 1 nouveau composant `RestaurantAutocomplete.tsx` (TextInput + dropdown overlay)
-- 1 nouveau service `restaurantSearch.ts` (appel Foursquare + cache léger)
-- Ajout clé Foursquare dans `SettingsScreen`
-- 1 ligne modifiée dans `WineForm.tsx`
-- Zéro modification DB / types / migrations
+---
 
-**Hors périmètre**
-- Stockage de l'adresse ou coordonnées GPS
-- Carte ou vue restaurant
-- Résolution des doublons existants en base
+### EPIC : Autocomplete restaurant via API ouverte (Foursquare)
 
-**Effort estimé :** 1 à 2 sessions de développement.
+**Implémenté** — voir `src/services/restaurantSearch.ts` et `src/components/RestaurantAutocomplete.tsx`.
+La clé API Foursquare se configure dans l'écran Paramètres.

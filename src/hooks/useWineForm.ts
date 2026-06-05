@@ -19,6 +19,7 @@ export const EMPTY_FORM: WineForm = {
   comment: '',
   companion: '',
   buy_again: false,
+  cellar_id: null,
 };
 
 interface FormErrors {

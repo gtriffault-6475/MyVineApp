@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   FlatList,
@@ -7,21 +7,35 @@ import {
   StyleSheet,
   RefreshControl,
   ActivityIndicator,
+  TextInput,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { useWineContext } from '@/context/WineContext';
-import { WineCard } from '@/components/WineCard';
+import { useCellarContext } from '@/context/CellarContext';
+import { CellarCard } from '@/components/CellarCard';
 import { EmptyState } from '@/components/EmptyState';
-import { colors, spacing, shadow } from '@/components/ui/tokens';
+import { colors, spacing, shadow, font, radius } from '@/components/ui/tokens';
 import type { RootStackParamList } from '@/navigation';
 
 export function CellarScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  const { state, reload } = useWineContext();
-  const { wines, loading } = state;
+  const { state, reload } = useCellarContext();
+  const { entries, loading } = state;
+  const [search, setSearch] = useState('');
 
-  if (loading && wines.length === 0) {
+  const filtered = search.trim()
+    ? entries.filter((e) => {
+        const q = search.toLowerCase();
+        return (
+          e.name.toLowerCase().includes(q) ||
+          (e.producer?.toLowerCase().includes(q) ?? false) ||
+          (e.appellation?.toLowerCase().includes(q) ?? false) ||
+          (e.storage_location?.toLowerCase().includes(q) ?? false)
+        );
+      })
+    : entries;
+
+  if (loading && entries.length === 0) {
     return (
       <View style={styles.center}>
         <ActivityIndicator color={colors.primary} size="large" />
@@ -31,23 +45,45 @@ export function CellarScreen() {
 
   return (
     <View style={styles.container}>
+      {entries.length > 0 && (
+        <View style={styles.searchBar}>
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Rechercher dans la cave…"
+            placeholderTextColor={colors.textLight}
+            value={search}
+            onChangeText={setSearch}
+            clearButtonMode="while-editing"
+          />
+        </View>
+      )}
+
       <FlatList
-        data={wines}
-        keyExtractor={(w) => w.id.toString()}
+        data={filtered}
+        keyExtractor={(e) => e.id.toString()}
         renderItem={({ item }) => (
-          <WineCard
-            wine={item}
-            onPress={() => navigation.navigate('WineDetail', { wineId: item.id })}
+          <CellarCard
+            entry={item}
+            onPress={() => navigation.navigate('CellarDetail', { cellarId: item.id })}
           />
         )}
-        contentContainerStyle={wines.length === 0 ? styles.emptyContainer : styles.list}
+        contentContainerStyle={filtered.length === 0 ? styles.emptyContainer : styles.list}
         ListEmptyComponent={
-          <EmptyState
-            action={{
-              label: 'Ajouter un vin',
-              onPress: () => navigation.navigate('AddWine'),
-            }}
-          />
+          entries.length === 0 ? (
+            <EmptyState
+              icon="🍾"
+              title="Cave vide"
+              message="Ajoutez vos premières bouteilles pour gérer votre cave."
+              action={{
+                label: 'Ajouter une bouteille',
+                onPress: () => navigation.navigate('AddCellarEntry', {}),
+              }}
+            />
+          ) : (
+            <View style={styles.noResults}>
+              <Text style={styles.noResultsText}>Aucun résultat pour « {search} »</Text>
+            </View>
+          )
         }
         refreshControl={
           <RefreshControl
@@ -61,7 +97,7 @@ export function CellarScreen() {
 
       <TouchableOpacity
         style={styles.fab}
-        onPress={() => navigation.navigate('AddWine')}
+        onPress={() => navigation.navigate('AddCellarEntry', {})}
         activeOpacity={0.85}
       >
         <Text style={styles.fabIcon}>+</Text>
@@ -80,12 +116,37 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  searchBar: {
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm,
+    backgroundColor: colors.background,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  searchInput: {
+    backgroundColor: colors.surface,
+    borderRadius: radius.md,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm + 2,
+    fontSize: font.sizeMd,
+    color: colors.text,
+    minHeight: 40,
+  },
   list: {
     paddingVertical: spacing.md,
     paddingBottom: 80,
   },
   emptyContainer: {
     flex: 1,
+  },
+  noResults: {
+    flex: 1,
+    alignItems: 'center',
+    paddingTop: spacing.xxxl,
+  },
+  noResultsText: {
+    fontSize: font.sizeLg,
+    color: colors.textMuted,
   },
   fab: {
     position: 'absolute',
