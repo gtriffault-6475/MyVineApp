@@ -69,12 +69,12 @@ function MainTabNavigator() {
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.textMuted,
         tabBarStyle: {
-          backgroundColor: colors.white,
+          backgroundColor: colors.background,
           borderTopColor: colors.border,
           borderTopWidth: 1,
         },
         tabBarLabelStyle: { fontSize: 11, fontWeight: '500' },
-        headerStyle: { backgroundColor: colors.white },
+        headerStyle: { backgroundColor: colors.background },
         headerShadowVisible: false,
         headerTitleStyle: { fontWeight: '600', fontSize: 18, color: colors.text },
       }}
@@ -86,7 +86,7 @@ function MainTabNavigator() {
           title: 'Ma cave',
           tabBarLabel: 'Cave',
           tabBarIcon: ({ focused, color, size }) => (
-            <TabIcon name="archive-outline" nameFilled="archive" focused={focused} color={color} size={size} />
+            <TabIcon name="albums-outline" nameFilled="albums" focused={focused} color={color} size={size} />
           ),
         }}
       />
@@ -119,7 +119,7 @@ function MainTabNavigator() {
           title: 'Statistiques',
           tabBarLabel: 'Stats',
           tabBarIcon: ({ focused, color, size }) => (
-            <TabIcon name="stats-chart-outline" nameFilled="stats-chart" focused={focused} color={color} size={size} />
+            <TabIcon name="bar-chart-outline" nameFilled="bar-chart" focused={focused} color={color} size={size} />
           ),
         }}
       />
@@ -144,11 +144,11 @@ export function RootNavigator() {
   return (
     <RootStack.Navigator
       screenOptions={{
-        headerStyle: { backgroundColor: colors.white },
+        headerStyle: { backgroundColor: colors.background },
         headerShadowVisible: false,
         headerTintColor: colors.primary,
         headerTitleStyle: { fontWeight: '600', color: colors.text },
-        contentStyle: { backgroundColor: colors.white, flex: 1 },
+        contentStyle: { backgroundColor: colors.background, flex: 1 },
       }}
     >
       <RootStack.Screen
