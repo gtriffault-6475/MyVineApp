@@ -88,7 +88,7 @@ export function CellarForm({
 
   return (
     <KeyboardAvoidingView
-      style={styles.kav}
+      style={[styles.kav, { backgroundColor: colors.background }]}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <ScrollView

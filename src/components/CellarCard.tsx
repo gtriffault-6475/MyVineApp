@@ -36,7 +36,7 @@ export function CellarCard({ entry, onPress }: Props) {
 
   return (
     <TouchableOpacity
-      style={[styles.card, { backgroundColor: colors.surface }, shadow.sm]}
+      style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }, shadow.sm]}
       onPress={onPress}
       activeOpacity={0.82}
     >
@@ -97,6 +97,7 @@ const styles = StyleSheet.create({
     marginHorizontal: spacing.lg,
     marginVertical: spacing.sm,
     overflow: 'hidden',
+    borderWidth: 1,
   },
   thumb: {
     width: 80,

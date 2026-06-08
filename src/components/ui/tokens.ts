@@ -80,9 +80,9 @@ export const lightShadow: ShadowSet = {
   },
   fab: {
     shadowColor: '#7A2030',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.3,
-    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.40,
+    shadowRadius: 14,
     elevation: 6,
   },
 };
@@ -97,16 +97,16 @@ export const darkShadow: ShadowSet = {
   },
   md: {
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.55,
-    shadowRadius: 10,
+    shadowRadius: 20,
     elevation: 6,
   },
   fab: {
     shadowColor: '#7A2030',
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.55,
-    shadowRadius: 12,
+    shadowRadius: 22,
     elevation: 8,
   },
 };

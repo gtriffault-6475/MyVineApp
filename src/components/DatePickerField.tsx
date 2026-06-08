@@ -68,7 +68,7 @@ export function DatePickerField({ label = 'Date', modalTitle, value, onChange, e
       <TouchableOpacity
         style={[
           styles.field,
-          { backgroundColor: colors.white, borderColor: error ? colors.error : colors.border },
+          { backgroundColor: colors.surface, borderColor: error ? colors.error : colors.border },
         ]}
         onPress={handleOpen}
         activeOpacity={0.7}
@@ -83,7 +83,7 @@ export function DatePickerField({ label = 'Date', modalTitle, value, onChange, e
       <Modal visible={open} transparent animationType="slide">
         <View style={styles.modalContainer}>
           <TouchableOpacity style={styles.backdrop} activeOpacity={1} onPress={handleCancel} />
-          <View style={[styles.sheet, { backgroundColor: colors.white, borderColor: colors.border }]}>
+          <View style={[styles.sheet, { backgroundColor: colors.surface, borderColor: colors.border }]}>
             <View style={[styles.sheetHeader, { borderBottomColor: colors.border }]}>
               <TouchableOpacity onPress={handleClear} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
                 <Text style={[styles.clearBtn, { color: colors.textMuted }]}>Effacer</Text>

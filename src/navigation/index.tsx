@@ -70,7 +70,7 @@ function MainTabNavigator() {
     <Tab.Navigator
       screenOptions={{
         tabBarActiveTintColor: activeTint,
-        tabBarInactiveTintColor: colors.textMuted,
+        tabBarInactiveTintColor: isDark ? colors.textLight : colors.textMuted,
         tabBarStyle: {
           backgroundColor: colors.background,
           borderTopColor: colors.border,

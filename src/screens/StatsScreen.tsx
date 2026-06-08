@@ -15,7 +15,7 @@ import { useWineContext } from '@/context/WineContext';
 
 export function StatsScreen() {
   const { state } = useWineContext();
-  const { colors, shadow, serifFontKpi } = useTheme();
+  const { colors, shadow, isDark, serifFontKpi } = useTheme();
   const [stats, setStats] = useState<WineStats | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -67,6 +67,7 @@ export function StatsScreen() {
           emoji="🍷"
           colors={colors}
           shadow={shadow}
+          isDark={isDark}
           serifFontKpi={serifFontKpi}
         />
         <KpiCard
@@ -75,6 +76,7 @@ export function StatsScreen() {
           emoji="⭐"
           colors={colors}
           shadow={shadow}
+          isDark={isDark}
           serifFontKpi={serifFontKpi}
         />
         <KpiCard
@@ -83,6 +85,7 @@ export function StatsScreen() {
           emoji="↺"
           colors={colors}
           shadow={shadow}
+          isDark={isDark}
           serifFontKpi={serifFontKpi}
         />
       </View>
@@ -127,6 +130,7 @@ function KpiCard({
   emoji,
   colors,
   shadow,
+  isDark,
   serifFontKpi,
 }: {
   value: string;
@@ -134,6 +138,7 @@ function KpiCard({
   emoji: string;
   colors: ThemeColors;
   shadow: ThemeShadow;
+  isDark: boolean;
   serifFontKpi: string | undefined;
 }) {
   return (
@@ -145,7 +150,7 @@ function KpiCard({
       ]}
     >
       <Text style={kpiStyles.emoji}>{emoji}</Text>
-      <Text style={[kpiStyles.value, { color: colors.text, fontFamily: serifFontKpi }]}>
+      <Text style={[kpiStyles.value, { color: isDark ? colors.scoreGold : colors.text, fontFamily: serifFontKpi }]}>
         {value}
       </Text>
       <Text style={[kpiStyles.label, { color: colors.textMuted }]}>{label}</Text>
