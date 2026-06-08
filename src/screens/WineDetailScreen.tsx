@@ -16,7 +16,8 @@ import { useWineContext } from '@/context/WineContext';
 import { getDb } from '@/db/database';
 import { deleteWine } from '@/db/queries';
 import { StarRating } from '@/components/StarRating';
-import { colors, spacing, font, radius, shadow } from '@/components/ui/tokens';
+import { spacing, font, radius } from '@/components/ui/tokens';
+import { useTheme } from '@/context/ThemeContext';
 import type { RootStackParamList } from '@/navigation';
 
 const LOCATION_LABELS: Record<string, string> = {
@@ -30,6 +31,7 @@ export function WineDetailScreen() {
   const route = useRoute<RouteProp<RootStackParamList, 'WineDetail'>>();
   const { wineId } = route.params;
   const { state, dispatch } = useWineContext();
+  const { colors, serifFontWine } = useTheme();
 
   const wine = state.wines.find((w) => w.id === wineId);
 
@@ -43,18 +45,18 @@ export function WineDetailScreen() {
             onPress={() => navigation.navigate('WineEdit', { wineId: wine.id })}
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
           >
-            <Text style={styles.headerBtn}>Modifier</Text>
+            <Text style={[styles.headerBtn, { color: colors.primary }]}>Modifier</Text>
           </TouchableOpacity>
           <TouchableOpacity
             onPress={handleDelete}
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
           >
-            <Text style={[styles.headerBtn, styles.deleteBtn]}>Supprimer</Text>
+            <Text style={[styles.headerBtn, { color: colors.error }]}>Supprimer</Text>
           </TouchableOpacity>
         </View>
       ),
     });
-  }, [wine]);
+  }, [wine, colors]);
 
   if (!wine) {
     return (
@@ -106,28 +108,34 @@ export function WineDetailScreen() {
       ? wine.restaurant_name
       : LOCATION_LABELS[wine.location_type] ?? wine.location_type;
 
+  const chipHighlightBg = colors.success + '22';
+
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+    <ScrollView
+      style={[styles.container, { backgroundColor: colors.background }]}
+      contentContainerStyle={styles.content}
+    >
       {photoUri ? (
-        <Image
-          source={{ uri: photoUri }}
-          style={styles.photo}
-          resizeMode="cover"
-        />
+        <Image source={{ uri: photoUri }} style={styles.photo} resizeMode="cover" />
       ) : (
-        <View style={styles.photoPlaceholder}>
+        <View style={[styles.photoPlaceholder, { backgroundColor: colors.surface }]}>
           <Text style={styles.photoEmoji}>🍷</Text>
         </View>
       )}
 
       <View style={styles.main}>
-        <Text style={styles.name}>
+        <Text
+          style={[
+            styles.name,
+            { color: colors.text, fontFamily: serifFontWine },
+          ]}
+        >
           {wine.name}
           {wine.vintage ? ` ${wine.vintage}` : ''}
         </Text>
 
         {(wine.producer || wine.appellation) ? (
-          <Text style={styles.subtitle}>
+          <Text style={[styles.subtitle, { color: colors.textMuted }]}>
             {[wine.producer, wine.appellation].filter(Boolean).join(' · ')}
           </Text>
         ) : null}
@@ -139,54 +147,87 @@ export function WineDetailScreen() {
         ) : null}
 
         <View style={styles.chips}>
-          <Chip icon="📍" label={locationLabel} />
-          <Chip icon="📅" label={drunkDate} />
-          {wine.buy_again === 1 && <Chip icon="✓" label="À racheter" highlight />}
+          <Chip icon="📍" label={locationLabel} colors={colors} />
+          <Chip icon="📅" label={drunkDate} colors={colors} />
+          {wine.buy_again === 1 && (
+            <Chip icon="✓" label="À racheter" highlight colors={colors} />
+          )}
         </View>
 
         {wine.companion ? (
-          <InfoBlock label="Avec qui" value={wine.companion} />
+          <InfoBlock label="Avec qui" value={wine.companion} colors={colors} />
         ) : null}
 
         {wine.food_pairing ? (
-          <InfoBlock label="Accord mets-vins" value={wine.food_pairing} />
+          <InfoBlock label="Accord mets-vins" value={wine.food_pairing} colors={colors} />
         ) : null}
 
         {wine.comment ? (
-          <InfoBlock label="Commentaire" value={wine.comment} />
+          <InfoBlock label="Commentaire" value={wine.comment} colors={colors} />
         ) : null}
       </View>
     </ScrollView>
   );
 }
 
-function Chip({ icon, label, highlight }: { icon: string; label: string; highlight?: boolean }) {
+function Chip({
+  icon,
+  label,
+  highlight,
+  colors,
+}: {
+  icon: string;
+  label: string;
+  highlight?: boolean;
+  colors: ReturnType<typeof useTheme>['colors'];
+}) {
   return (
-    <View style={[chipStyles.chip, highlight && chipStyles.highlight]}>
+    <View
+      style={[
+        chipStyles.chip,
+        { backgroundColor: colors.surface, borderColor: colors.border },
+        highlight && { backgroundColor: colors.success + '22', borderColor: colors.success + '55' },
+      ]}
+    >
       <Text style={chipStyles.icon}>{icon}</Text>
-      <Text style={[chipStyles.label, highlight && chipStyles.highlightLabel]}>{label}</Text>
+      <Text
+        style={[
+          chipStyles.label,
+          { color: colors.text },
+          highlight && { color: colors.success },
+        ]}
+      >
+        {label}
+      </Text>
     </View>
   );
 }
 
-function InfoBlock({ label, value }: { label: string; value: string }) {
+function InfoBlock({
+  label,
+  value,
+  colors,
+}: {
+  label: string;
+  value: string;
+  colors: ReturnType<typeof useTheme>['colors'];
+}) {
   return (
-    <View style={infoStyles.block}>
-      <Text style={infoStyles.label}>{label}</Text>
-      <Text style={infoStyles.value}>{value}</Text>
+    <View style={[infoStyles.block, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+      <Text style={[infoStyles.label, { color: colors.textMuted }]}>{label}</Text>
+      <Text style={[infoStyles.value, { color: colors.text }]}>{value}</Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
+  container: { flex: 1 },
   content: { paddingBottom: spacing.xxxl },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   photo: { width: '100%', height: 280 },
   photoPlaceholder: {
     width: '100%',
     height: 200,
-    backgroundColor: colors.surface,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -195,19 +236,16 @@ const styles = StyleSheet.create({
   name: {
     fontSize: font.sizeHero,
     fontWeight: font.weightBold,
-    color: colors.text,
     lineHeight: 34,
   },
   subtitle: {
     fontSize: font.sizeLg,
-    color: colors.textMuted,
     marginTop: -spacing.sm,
   },
   scoreRow: { marginTop: -spacing.xs },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
   headerActions: { flexDirection: 'row', gap: spacing.lg, marginRight: spacing.md },
-  headerBtn: { color: colors.primary, fontSize: font.sizeLg, fontWeight: font.weightMedium },
-  deleteBtn: { color: colors.error },
+  headerBtn: { fontSize: font.sizeLg, fontWeight: font.weightMedium },
 });
 
 const chipStyles = StyleSheet.create({
@@ -215,37 +253,27 @@ const chipStyles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.xs,
-    backgroundColor: colors.surface,
     borderRadius: radius.pill,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.xs,
     borderWidth: 1,
-    borderColor: colors.border,
-  },
-  highlight: {
-    backgroundColor: '#E8F5EE',
-    borderColor: '#B2D9C0',
   },
   icon: { fontSize: 13 },
-  label: { fontSize: font.sizeSm, color: colors.text, fontWeight: font.weightMedium },
-  highlightLabel: { color: colors.success },
+  label: { fontSize: font.sizeSm, fontWeight: font.weightMedium },
 });
 
 const infoStyles = StyleSheet.create({
   block: {
-    backgroundColor: colors.surface,
     borderRadius: radius.md,
     padding: spacing.lg,
     gap: spacing.xs,
     borderWidth: 1,
-    borderColor: colors.border,
   },
   label: {
     fontSize: font.sizeSm,
     fontWeight: font.weightSemibold,
-    color: colors.textMuted,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
-  value: { fontSize: font.sizeLg, color: colors.text, lineHeight: 24 },
+  value: { fontSize: font.sizeLg, lineHeight: 24 },
 });

@@ -9,7 +9,8 @@ import {
   ViewStyle,
 } from 'react-native';
 import { searchRestaurants, type RestaurantSuggestion } from '@/services/restaurantSearch';
-import { colors, spacing, font, radius, shadow } from './ui/tokens';
+import { spacing, font, radius } from './ui/tokens';
+import { useTheme } from '@/context/ThemeContext';
 
 interface Props {
   value: string;
@@ -18,6 +19,7 @@ interface Props {
 }
 
 export function RestaurantAutocomplete({ value, onChangeText, containerStyle }: Props) {
+  const { colors, shadow } = useTheme();
   const [suggestions, setSuggestions] = useState<RestaurantSuggestion[]>([]);
   const [loading, setLoading] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -55,16 +57,15 @@ export function RestaurantAutocomplete({ value, onChangeText, containerStyle }: 
   };
 
   const handleBlur = () => {
-    // Delay to let onPress on suggestions fire first
     setTimeout(() => setSuggestions([]), 150);
   };
 
   return (
     <View style={containerStyle}>
-      <Text style={styles.label}>Nom du restaurant</Text>
-      <View style={styles.inputRow}>
+      <Text style={[styles.label, { color: colors.textMuted }]}>Nom du restaurant</Text>
+      <View style={[styles.inputRow, { backgroundColor: colors.surface, borderColor: colors.border }]}>
         <TextInput
-          style={styles.input}
+          style={[styles.input, { color: colors.text }]}
           value={value}
           onChangeText={handleChange}
           onBlur={handleBlur}
@@ -74,26 +75,29 @@ export function RestaurantAutocomplete({ value, onChangeText, containerStyle }: 
           autoCorrect={false}
         />
         {loading && (
-          <ActivityIndicator
-            size="small"
-            color={colors.textMuted}
-            style={styles.spinner}
-          />
+          <ActivityIndicator size="small" color={colors.textMuted} style={styles.spinner} />
         )}
       </View>
 
       {suggestions.length > 0 && (
-        <View style={styles.dropdown}>
+        <View style={[styles.dropdown, { backgroundColor: colors.white, borderColor: colors.border }, shadow.md]}>
           {suggestions.map((s, index) => (
             <TouchableOpacity
               key={s.id}
-              style={[styles.suggestion, index < suggestions.length - 1 && styles.suggestionBorder]}
+              style={[
+                styles.suggestion,
+                index < suggestions.length - 1 && { borderBottomWidth: 1, borderBottomColor: colors.border },
+              ]}
               onPress={() => handleSelect(s)}
               activeOpacity={0.7}
             >
-              <Text style={styles.suggestionName} numberOfLines={1}>{s.name}</Text>
+              <Text style={[styles.suggestionName, { color: colors.text }]} numberOfLines={1}>
+                {s.name}
+              </Text>
               {s.address ? (
-                <Text style={styles.suggestionAddress} numberOfLines={1}>{s.address}</Text>
+                <Text style={[styles.suggestionAddress, { color: colors.textMuted }]} numberOfLines={1}>
+                  {s.address}
+                </Text>
               ) : null}
             </TouchableOpacity>
           ))}
@@ -107,7 +111,6 @@ const styles = StyleSheet.create({
   label: {
     fontSize: font.sizeSm,
     fontWeight: font.weightSemibold,
-    color: colors.textMuted,
     marginBottom: spacing.xs,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
@@ -115,9 +118,7 @@ const styles = StyleSheet.create({
   inputRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.surface,
     borderWidth: 1,
-    borderColor: colors.border,
     borderRadius: radius.md,
     paddingHorizontal: spacing.lg,
     minHeight: 48,
@@ -125,7 +126,6 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     fontSize: font.sizeLg,
-    color: colors.text,
     paddingVertical: spacing.md,
   },
   spinner: {
@@ -133,29 +133,20 @@ const styles = StyleSheet.create({
   },
   dropdown: {
     marginTop: spacing.xs,
-    backgroundColor: colors.white,
     borderWidth: 1,
-    borderColor: colors.border,
     borderRadius: radius.md,
     overflow: 'hidden',
-    ...shadow.md,
   },
   suggestion: {
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
   },
-  suggestionBorder: {
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-  },
   suggestionName: {
     fontSize: font.sizeMd,
-    color: colors.text,
     fontWeight: font.weightMedium,
   },
   suggestionAddress: {
     fontSize: font.sizeSm,
-    color: colors.textMuted,
     marginTop: 2,
   },
 });

@@ -1,7 +1,8 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Button } from './ui/Button';
-import { colors, spacing, font } from './ui/tokens';
+import { spacing, font } from './ui/tokens';
+import { useTheme } from '@/context/ThemeContext';
 
 interface Props {
   icon?: string;
@@ -16,17 +17,15 @@ export function EmptyState({
   message = 'Commencez par ajouter un vin que vous avez dégusté.',
   action,
 }: Props) {
+  const { colors } = useTheme();
+
   return (
     <View style={styles.container}>
       <Text style={styles.icon}>{icon}</Text>
-      <Text style={styles.title}>{title}</Text>
-      <Text style={styles.message}>{message}</Text>
+      <Text style={[styles.title, { color: colors.text }]}>{title}</Text>
+      <Text style={[styles.message, { color: colors.textMuted }]}>{message}</Text>
       {action && (
-        <Button
-          title={action.label}
-          onPress={action.onPress}
-          style={styles.button}
-        />
+        <Button title={action.label} onPress={action.onPress} style={styles.button} />
       )}
     </View>
   );
@@ -47,12 +46,10 @@ const styles = StyleSheet.create({
   title: {
     fontSize: font.sizeXxl,
     fontWeight: font.weightBold,
-    color: colors.text,
     textAlign: 'center',
   },
   message: {
     fontSize: font.sizeLg,
-    color: colors.textMuted,
     textAlign: 'center',
     lineHeight: 24,
   },

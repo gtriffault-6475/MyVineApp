@@ -7,7 +7,8 @@ import {
   ActivityIndicator,
   Image,
 } from 'react-native';
-import { colors, spacing, radius, font } from './ui/tokens';
+import { spacing, radius, font } from './ui/tokens';
+import { useTheme } from '@/context/ThemeContext';
 
 interface Props {
   uri: string | null;
@@ -18,9 +19,11 @@ interface Props {
 }
 
 export function LabelPhoto({ uri, onPress, readOnly = false, height = 200, loading }: Props) {
+  const { colors } = useTheme();
+
   if (loading) {
     return (
-      <View style={[styles.placeholder, { height }]}>
+      <View style={[styles.placeholder, { height, backgroundColor: colors.surface, borderColor: colors.border }]}>
         <ActivityIndicator color={colors.primary} />
       </View>
     );
@@ -31,14 +34,10 @@ export function LabelPhoto({ uri, onPress, readOnly = false, height = 200, loadi
       <TouchableOpacity
         onPress={readOnly ? undefined : onPress}
         activeOpacity={readOnly ? 1 : 0.8}
-        style={[styles.imageContainer, { height }]}
+        style={[styles.imageContainer, { height, backgroundColor: colors.surface }]}
         disabled={readOnly}
       >
-        <Image
-          source={{ uri }}
-          style={styles.image}
-          resizeMode="cover"
-        />
+        <Image source={{ uri }} style={styles.image} resizeMode="cover" />
         {!readOnly && (
           <View style={styles.editBadge}>
             <Text style={styles.editText}>Modifier</Text>
@@ -50,22 +49,22 @@ export function LabelPhoto({ uri, onPress, readOnly = false, height = 200, loadi
 
   if (readOnly) {
     return (
-      <View style={[styles.placeholder, { height }]}>
+      <View style={[styles.placeholder, { height, backgroundColor: colors.surface, borderColor: colors.border }]}>
         <Text style={styles.placeholderIcon}>🍷</Text>
-        <Text style={styles.placeholderText}>Pas de photo</Text>
+        <Text style={[styles.placeholderText, { color: colors.textMuted }]}>Pas de photo</Text>
       </View>
     );
   }
 
   return (
     <TouchableOpacity
-      style={[styles.placeholder, { height }]}
+      style={[styles.placeholder, { height, backgroundColor: colors.surface, borderColor: colors.border }]}
       onPress={onPress}
       activeOpacity={0.75}
     >
       <Text style={styles.placeholderIcon}>📷</Text>
-      <Text style={styles.placeholderText}>Ajouter une photo</Text>
-      <Text style={styles.placeholderSub}>de l'étiquette</Text>
+      <Text style={[styles.placeholderText, { color: colors.textMuted }]}>Ajouter une photo</Text>
+      <Text style={[styles.placeholderSub, { color: colors.textLight }]}>de l'étiquette</Text>
     </TouchableOpacity>
   );
 }
@@ -74,7 +73,6 @@ const styles = StyleSheet.create({
   imageContainer: {
     borderRadius: radius.lg,
     overflow: 'hidden',
-    backgroundColor: colors.surface,
   },
   image: {
     width: '100%',
@@ -90,15 +88,13 @@ const styles = StyleSheet.create({
     borderRadius: radius.pill,
   },
   editText: {
-    color: colors.white,
+    color: '#FFFFFF',
     fontSize: font.sizeSm,
     fontWeight: font.weightSemibold,
   },
   placeholder: {
     borderRadius: radius.lg,
-    backgroundColor: colors.surface,
     borderWidth: 1.5,
-    borderColor: colors.border,
     borderStyle: 'dashed',
     alignItems: 'center',
     justifyContent: 'center',
@@ -110,10 +106,8 @@ const styles = StyleSheet.create({
   placeholderText: {
     fontSize: font.sizeMd,
     fontWeight: font.weightMedium,
-    color: colors.textMuted,
   },
   placeholderSub: {
     fontSize: font.sizeSm,
-    color: colors.textLight,
   },
 });

@@ -7,7 +7,8 @@ import {
   TextInputProps,
   ViewStyle,
 } from 'react-native';
-import { colors, spacing, radius, font } from './tokens';
+import { spacing, radius, font } from './tokens';
+import { useTheme } from '@/context/ThemeContext';
 
 interface Props extends TextInputProps {
   label?: string;
@@ -16,15 +17,26 @@ interface Props extends TextInputProps {
 }
 
 export function TextInput({ label, error, containerStyle, style, ...props }: Props) {
+  const { colors } = useTheme();
+
   return (
     <View style={[styles.container, containerStyle]}>
-      {label ? <Text style={styles.label}>{label}</Text> : null}
+      {label ? (
+        <Text style={[styles.label, { color: colors.textMuted }]}>{label}</Text>
+      ) : null}
       <RNTextInput
-        style={[styles.input, error ? styles.inputError : undefined, style]}
+        style={[
+          styles.input,
+          { backgroundColor: colors.surface, borderColor: colors.border, color: colors.text },
+          error ? { borderColor: colors.error } : undefined,
+          style,
+        ]}
         placeholderTextColor={colors.textLight}
         {...props}
       />
-      {error ? <Text style={styles.error}>{error}</Text> : null}
+      {error ? (
+        <Text style={[styles.error, { color: colors.error }]}>{error}</Text>
+      ) : null}
     </View>
   );
 }
@@ -36,28 +48,20 @@ const styles = StyleSheet.create({
   label: {
     fontSize: font.sizeSm,
     fontWeight: font.weightSemibold,
-    color: colors.textMuted,
     marginBottom: spacing.xs,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
   input: {
-    backgroundColor: colors.surface,
     borderWidth: 1,
-    borderColor: colors.border,
     borderRadius: radius.md,
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
     fontSize: font.sizeLg,
-    color: colors.text,
     minHeight: 48,
-  },
-  inputError: {
-    borderColor: colors.error,
   },
   error: {
     fontSize: font.sizeSm,
-    color: colors.error,
     marginTop: spacing.xs,
   },
 });

@@ -13,13 +13,15 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useWineContext } from '@/context/WineContext';
 import { WineCard } from '@/components/WineCard';
 import { EmptyState } from '@/components/EmptyState';
-import { colors, spacing, shadow } from '@/components/ui/tokens';
+import { spacing } from '@/components/ui/tokens';
+import { useTheme } from '@/context/ThemeContext';
 import type { RootStackParamList } from '@/navigation';
 
 export function DegustationsScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { state, reload } = useWineContext();
   const { wines, loading } = state;
+  const { colors, shadow } = useTheme();
 
   if (loading && wines.length === 0) {
     return (
@@ -30,7 +32,7 @@ export function DegustationsScreen() {
   }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       <FlatList
         data={wines}
         keyExtractor={(w) => w.id.toString()}
@@ -62,7 +64,7 @@ export function DegustationsScreen() {
       />
 
       <TouchableOpacity
-        style={styles.fab}
+        style={[styles.fab, { backgroundColor: colors.primary }, shadow.fab]}
         onPress={() => navigation.navigate('AddWine', {})}
         activeOpacity={0.85}
       >
@@ -73,22 +75,13 @@ export function DegustationsScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  center: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
+  container: { flex: 1 },
+  center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   list: {
     paddingVertical: spacing.md,
     paddingBottom: 80,
   },
-  emptyContainer: {
-    flex: 1,
-  },
+  emptyContainer: { flex: 1 },
   fab: {
     position: 'absolute',
     bottom: spacing.xxl,
@@ -96,14 +89,12 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
-    ...shadow.md,
   },
   fabIcon: {
     fontSize: 28,
-    color: colors.white,
+    color: '#FFFFFF',
     lineHeight: 32,
   },
 });

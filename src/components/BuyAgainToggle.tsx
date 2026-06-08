@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Switch, Text, StyleSheet } from 'react-native';
-import { colors, spacing, font } from './ui/tokens';
+import { spacing, font } from './ui/tokens';
+import { useTheme } from '@/context/ThemeContext';
 
 interface Props {
   value: boolean;
@@ -8,11 +9,13 @@ interface Props {
 }
 
 export function BuyAgainToggle({ value, onChange }: Props) {
+  const { colors } = useTheme();
+
   return (
     <View style={styles.row}>
       <View style={styles.textBlock}>
-        <Text style={styles.label}>À racheter</Text>
-        <Text style={styles.sub}>Envie d'en racheter une bouteille ?</Text>
+        <Text style={[styles.label, { color: colors.text }]}>À racheter</Text>
+        <Text style={[styles.sub, { color: colors.textMuted }]}>Envie d'en racheter une bouteille ?</Text>
       </View>
       <Switch
         value={value}
@@ -38,11 +41,9 @@ const styles = StyleSheet.create({
   label: {
     fontSize: font.sizeLg,
     fontWeight: font.weightMedium,
-    color: colors.text,
   },
   sub: {
     fontSize: font.sizeSm,
-    color: colors.textMuted,
     marginTop: 2,
   },
 });

@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, TouchableOpacity, Text, StyleSheet } from 'react-native';
-import { colors, spacing, radius, font } from './ui/tokens';
+import { spacing, radius, font } from './ui/tokens';
+import { useTheme } from '@/context/ThemeContext';
 
 interface Props {
   score: number | null;
@@ -18,6 +19,8 @@ function scoreColor(s: number): string {
 }
 
 export function ScorePicker({ score, onChange }: Props) {
+  const { colors } = useTheme();
+
   return (
     <View>
       <View style={styles.row}>
@@ -28,19 +31,22 @@ export function ScorePicker({ score, onChange }: Props) {
               key={s}
               style={[
                 styles.bubble,
+                { borderColor: colors.border, backgroundColor: colors.surface },
                 active && { backgroundColor: scoreColor(s), borderColor: scoreColor(s) },
               ]}
               onPress={() => onChange(active ? null : s)}
               activeOpacity={0.75}
             >
-              <Text style={[styles.label, active && styles.activeLabel]}>{s}</Text>
+              <Text style={[styles.label, { color: colors.textMuted }, active && styles.activeLabel]}>
+                {s}
+              </Text>
             </TouchableOpacity>
           );
         })}
       </View>
       <View style={styles.legendRow}>
-        <Text style={styles.legend}>Mauvais</Text>
-        <Text style={styles.legend}>Excellent</Text>
+        <Text style={[styles.legend, { color: colors.textLight }]}>Mauvais</Text>
+        <Text style={[styles.legend, { color: colors.textLight }]}>Excellent</Text>
       </View>
     </View>
   );
@@ -57,18 +63,15 @@ const styles = StyleSheet.create({
     height: 36,
     borderRadius: radius.full,
     borderWidth: 1.5,
-    borderColor: colors.border,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: colors.surface,
   },
   label: {
     fontSize: font.sizeSm,
     fontWeight: font.weightSemibold,
-    color: colors.textMuted,
   },
   activeLabel: {
-    color: colors.white,
+    color: '#FFFFFF',
   },
   legendRow: {
     flexDirection: 'row',
@@ -78,6 +81,5 @@ const styles = StyleSheet.create({
   },
   legend: {
     fontSize: font.sizeSm,
-    color: colors.textLight,
   },
 });

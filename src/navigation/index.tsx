@@ -3,7 +3,7 @@ import { createNativeStackNavigator, NativeStackNavigationProp } from '@react-na
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useNavigation, useRoute, NavigatorScreenParams, RouteProp } from '@react-navigation/native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { colors } from '@/components/ui/tokens';
+import { useTheme } from '@/context/ThemeContext';
 
 import { CellarScreen } from '@/screens/CellarScreen';
 import { DegustationsScreen } from '@/screens/DegustationsScreen';
@@ -43,8 +43,8 @@ const Tab = createBottomTabNavigator<MainTabParamList>();
 // ─── Tab icon — outline inactive, filled active ────────────────────────────
 
 type TabIconProps = {
-  name: string;        // outline variant (inactive)
-  nameFilled: string;  // filled variant (active)
+  name: string;
+  nameFilled: string;
   focused: boolean;
   color: string;
   size: number;
@@ -63,10 +63,13 @@ function TabIcon({ name, nameFilled, focused, color, size }: TabIconProps) {
 // ─── Tab navigator ────────────────────────────────────────────────────────────
 
 function MainTabNavigator() {
+  const { colors, isDark } = useTheme();
+  const activeTint = isDark ? colors.scoreGold : colors.primary;
+
   return (
     <Tab.Navigator
       screenOptions={{
-        tabBarActiveTintColor: colors.primary,
+        tabBarActiveTintColor: activeTint,
         tabBarInactiveTintColor: colors.textMuted,
         tabBarStyle: {
           backgroundColor: colors.background,
@@ -141,6 +144,8 @@ function MainTabNavigator() {
 // ─── Root navigator ───────────────────────────────────────────────────────────
 
 export function RootNavigator() {
+  const { colors } = useTheme();
+
   return (
     <RootStack.Navigator
       screenOptions={{

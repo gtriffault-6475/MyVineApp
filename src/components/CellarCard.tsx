@@ -3,14 +3,8 @@ import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import RNFS from 'react-native-fs';
 import type { CellarEntry } from '../types/cellar';
 import { cellarApogeeLabel, cellarApogeeStatus } from '../types/cellar';
-import { colors, spacing, radius, font, shadow } from './ui/tokens';
-
-const APOGEE_COLORS = {
-  peak: colors.success,
-  past: colors.textMuted,
-  early: colors.scoreGold,
-  unknown: colors.textLight,
-};
+import { spacing, radius, font } from './ui/tokens';
+import { useTheme } from '@/context/ThemeContext';
 
 const APOGEE_ICONS = {
   peak: '✦',
@@ -25,6 +19,15 @@ interface Props {
 }
 
 export function CellarCard({ entry, onPress }: Props) {
+  const { colors, shadow, serifFontWine } = useTheme();
+
+  const apogeeColors = {
+    peak: colors.success,
+    past: colors.textMuted,
+    early: colors.scoreGold,
+    unknown: colors.textLight,
+  };
+
   const photoUri = entry.photo_uri
     ? `file://${RNFS.DocumentDirectoryPath}/${entry.photo_uri}`
     : null;
@@ -32,12 +35,16 @@ export function CellarCard({ entry, onPress }: Props) {
   const status = cellarApogeeStatus(entry);
 
   return (
-    <TouchableOpacity style={styles.card} onPress={onPress} activeOpacity={0.82}>
+    <TouchableOpacity
+      style={[styles.card, { backgroundColor: colors.surface }, shadow.sm]}
+      onPress={onPress}
+      activeOpacity={0.82}
+    >
       <View style={styles.thumb}>
         {photoUri ? (
           <Image source={{ uri: photoUri }} style={styles.thumbImage} resizeMode="cover" />
         ) : (
-          <View style={styles.thumbPlaceholder}>
+          <View style={[styles.thumbPlaceholder, { backgroundColor: colors.surfaceAlt }]}>
             <Text style={styles.thumbEmoji}>🍾</Text>
           </View>
         )}
@@ -45,32 +52,35 @@ export function CellarCard({ entry, onPress }: Props) {
 
       <View style={styles.content}>
         <View style={styles.header}>
-          <Text style={styles.name} numberOfLines={1}>
+          <Text
+            style={[styles.name, { color: colors.text, fontFamily: serifFontWine }]}
+            numberOfLines={1}
+          >
             {entry.name}
             {entry.vintage ? ` ${entry.vintage}` : ''}
           </Text>
-          <View style={styles.qtyBadge}>
-            <Text style={styles.qtyText}>{entry.quantity}</Text>
+          <View style={[styles.qtyBadge, { backgroundColor: colors.primary }]}>
+            <Text style={[styles.qtyText, { color: colors.white }]}>{entry.quantity}</Text>
           </View>
         </View>
 
         {entry.producer || entry.appellation ? (
-          <Text style={styles.sub} numberOfLines={1}>
+          <Text style={[styles.sub, { color: colors.textMuted }]} numberOfLines={1}>
             {[entry.producer, entry.appellation].filter(Boolean).join(' · ')}
           </Text>
         ) : null}
 
         <View style={styles.footer}>
           {apogeeLabel ? (
-            <View style={[styles.apogeeChip, { borderColor: APOGEE_COLORS[status] }]}>
-              <Text style={[styles.apogeeText, { color: APOGEE_COLORS[status] }]}>
+            <View style={[styles.apogeeChip, { borderColor: apogeeColors[status] }]}>
+              <Text style={[styles.apogeeText, { color: apogeeColors[status] }]}>
                 {APOGEE_ICONS[status] ? `${APOGEE_ICONS[status]} ` : ''}
                 {apogeeLabel}
               </Text>
             </View>
           ) : null}
           {entry.storage_location ? (
-            <Text style={styles.location} numberOfLines={1}>
+            <Text style={[styles.location, { color: colors.textLight }]} numberOfLines={1}>
               📦 {entry.storage_location}
             </Text>
           ) : null}
@@ -83,12 +93,10 @@ export function CellarCard({ entry, onPress }: Props) {
 const styles = StyleSheet.create({
   card: {
     flexDirection: 'row',
-    backgroundColor: colors.white,
     borderRadius: radius.lg,
     marginHorizontal: spacing.lg,
     marginVertical: spacing.sm,
     overflow: 'hidden',
-    ...shadow.sm,
   },
   thumb: {
     width: 80,
@@ -101,7 +109,6 @@ const styles = StyleSheet.create({
   thumbPlaceholder: {
     width: '100%',
     height: '100%',
-    backgroundColor: colors.surfaceAlt,
     alignItems: 'center',
     justifyContent: 'center',
     minHeight: 90,
@@ -123,10 +130,8 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: font.sizeLg,
     fontWeight: font.weightSemibold,
-    color: colors.text,
   },
   qtyBadge: {
-    backgroundColor: colors.primary,
     borderRadius: radius.full,
     minWidth: 26,
     height: 26,
@@ -135,13 +140,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.sm,
   },
   qtyText: {
-    color: colors.white,
     fontSize: font.sizeSm,
     fontWeight: font.weightBold,
   },
   sub: {
     fontSize: font.sizeSm,
-    color: colors.textMuted,
   },
   footer: {
     marginTop: spacing.xs,
@@ -162,6 +165,5 @@ const styles = StyleSheet.create({
   },
   location: {
     fontSize: font.sizeSm,
-    color: colors.textLight,
   },
 });

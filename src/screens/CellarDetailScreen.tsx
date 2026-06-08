@@ -7,7 +7,6 @@ import {
   TouchableOpacity,
   Alert,
   Image,
-  FlatList,
 } from 'react-native';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -19,19 +18,13 @@ import { deleteCellarEntry, decrementCellarQuantity, getCellarEntryById } from '
 import { WineCard } from '@/components/WineCard';
 import { Button } from '@/components/ui/Button';
 import { cellarApogeeLabel, cellarApogeeStatus } from '@/types/cellar';
-import { colors, spacing, font, radius, shadow } from '@/components/ui/tokens';
+import { spacing, font, radius } from '@/components/ui/tokens';
+import { useTheme } from '@/context/ThemeContext';
 import type { RootStackParamList } from '@/navigation';
-
-const APOGEE_COLORS = {
-  peak: colors.success,
-  past: colors.textMuted,
-  early: colors.scoreGold,
-  unknown: colors.textLight,
-};
 
 const APOGEE_LABELS = {
   peak: 'À son apogée',
-  past: 'Passé l\'apogée',
+  past: "Passé l'apogée",
   early: 'Trop tôt',
   unknown: '',
 };
@@ -42,9 +35,17 @@ export function CellarDetailScreen() {
   const { cellarId } = route.params;
   const { state: cellarState, dispatch: cellarDispatch } = useCellarContext();
   const { state: wineState } = useWineContext();
+  const { colors, shadow, serifFontWine } = useTheme();
 
   const entry = cellarState.entries.find((e) => e.id === cellarId);
   const linkedWines = wineState.wines.filter((w) => w.cellar_id === cellarId);
+
+  const apogeeColors = {
+    peak: colors.success,
+    past: colors.textMuted,
+    early: colors.scoreGold,
+    unknown: colors.textLight,
+  };
 
   useEffect(() => {
     if (!entry) return;
@@ -55,16 +56,16 @@ export function CellarDetailScreen() {
           onPress={() => navigation.navigate('AddCellarEntry', { entryId: cellarId })}
           hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
         >
-          <Text style={styles.headerBtn}>Modifier</Text>
+          <Text style={[styles.headerBtn, { color: colors.primary }]}>Modifier</Text>
         </TouchableOpacity>
       ),
     });
-  }, [entry]);
+  }, [entry, colors]);
 
   if (!entry) {
     return (
       <View style={styles.center}>
-        <Text style={styles.notFound}>Bouteille introuvable</Text>
+        <Text style={[styles.notFound, { color: colors.textMuted }]}>Bouteille introuvable</Text>
       </View>
     );
   }
@@ -99,11 +100,7 @@ export function CellarDetailScreen() {
                 'Voulez-vous enregistrer cette dégustation ?',
                 [
                   { text: 'Non', style: 'cancel' },
-                  {
-                    text: 'Oui',
-                    onPress: () =>
-                      navigation.navigate('AddWine', { cellarId }),
-                  },
+                  { text: 'Oui', onPress: () => navigation.navigate('AddWine', { cellarId }) },
                 ]
               );
             } catch {
@@ -147,11 +144,14 @@ export function CellarDetailScreen() {
   };
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+    <ScrollView
+      style={[styles.container, { backgroundColor: colors.background }]}
+      contentContainerStyle={styles.content}
+    >
       {photoUri ? (
         <Image source={{ uri: photoUri }} style={styles.photo} resizeMode="cover" />
       ) : (
-        <View style={styles.photoPlaceholder}>
+        <View style={[styles.photoPlaceholder, { backgroundColor: colors.surface }]}>
           <Text style={styles.photoEmoji}>🍾</Text>
         </View>
       )}
@@ -159,18 +159,18 @@ export function CellarDetailScreen() {
       <View style={styles.main}>
         <View style={styles.titleRow}>
           <View style={styles.titleFlex}>
-            <Text style={styles.name}>
+            <Text style={[styles.name, { color: colors.text, fontFamily: serifFontWine }]}>
               {entry.name}
               {entry.vintage ? ` ${entry.vintage}` : ''}
             </Text>
             {entry.producer || entry.appellation ? (
-              <Text style={styles.subtitle}>
+              <Text style={[styles.subtitle, { color: colors.textMuted }]}>
                 {[entry.producer, entry.appellation].filter(Boolean).join(' · ')}
               </Text>
             ) : null}
           </View>
-          <View style={styles.qtyBlock}>
-            <Text style={styles.qtyNumber}>{entry.quantity}</Text>
+          <View style={[styles.qtyBlock, { backgroundColor: colors.primary }]}>
+            <Text style={[styles.qtyNumber, { color: colors.white }]}>{entry.quantity}</Text>
             <Text style={styles.qtyLabel}>
               {entry.quantity > 1 ? 'bouteilles' : 'bouteille'}
             </Text>
@@ -179,16 +179,16 @@ export function CellarDetailScreen() {
 
         <View style={styles.chips}>
           {apogeeLabel ? (
-            <View style={[styles.chip, { borderColor: APOGEE_COLORS[status] }]}>
-              <Text style={[styles.chipText, { color: APOGEE_COLORS[status] }]}>
+            <View style={[styles.chip, { borderColor: apogeeColors[status], backgroundColor: colors.surface }]}>
+              <Text style={[styles.chipText, { color: apogeeColors[status] }]}>
                 {APOGEE_LABELS[status] ? `${APOGEE_LABELS[status]} · ` : ''}
                 {apogeeLabel}
               </Text>
             </View>
           ) : null}
           {entry.storage_location ? (
-            <View style={styles.chip}>
-              <Text style={styles.chipText}>📦 {entry.storage_location}</Text>
+            <View style={[styles.chip, { borderColor: colors.border, backgroundColor: colors.surface }]}>
+              <Text style={[styles.chipText, { color: colors.text }]}>📦 {entry.storage_location}</Text>
             </View>
           ) : null}
         </View>
@@ -208,30 +208,22 @@ export function CellarDetailScreen() {
             ]
               .filter(Boolean)
               .join(' · ')}
+            colors={colors}
           />
         ) : null}
 
-        {entry.notes ? <InfoBlock label="Notes" value={entry.notes} /> : null}
+        {entry.notes ? <InfoBlock label="Notes" value={entry.notes} colors={colors} /> : null}
 
         {entry.quantity > 0 ? (
-          <Button
-            title="Ouvrir une bouteille"
-            onPress={handleOpenBottle}
-            style={styles.openBtn}
-          />
+          <Button title="Ouvrir une bouteille" onPress={handleOpenBottle} style={styles.openBtn} />
         ) : null}
 
-        <Button
-          title="Supprimer de la cave"
-          variant="danger"
-          onPress={handleDelete}
-          style={styles.deleteBtn}
-        />
+        <Button title="Supprimer de la cave" variant="danger" onPress={handleDelete} style={styles.deleteBtn} />
       </View>
 
       {linkedWines.length > 0 ? (
         <View style={styles.tastings}>
-          <Text style={styles.tastingsTitle}>
+          <Text style={[styles.tastingsTitle, { color: colors.text }]}>
             Dégustations ({linkedWines.length})
           </Text>
           {linkedWines.map((wine) => (
@@ -247,25 +239,32 @@ export function CellarDetailScreen() {
   );
 }
 
-function InfoBlock({ label, value }: { label: string; value: string }) {
+function InfoBlock({
+  label,
+  value,
+  colors,
+}: {
+  label: string;
+  value: string;
+  colors: ReturnType<typeof useTheme>['colors'];
+}) {
   return (
-    <View style={infoStyles.block}>
-      <Text style={infoStyles.label}>{label}</Text>
-      <Text style={infoStyles.value}>{value}</Text>
+    <View style={[infoStyles.block, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+      <Text style={[infoStyles.label, { color: colors.textMuted }]}>{label}</Text>
+      <Text style={[infoStyles.value, { color: colors.text }]}>{value}</Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
+  container: { flex: 1 },
   content: { paddingBottom: spacing.xxxl },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  notFound: { color: colors.textMuted, fontSize: font.sizeLg },
+  notFound: { fontSize: font.sizeLg },
   photo: { width: '100%', height: 260 },
   photoPlaceholder: {
     width: '100%',
     height: 200,
-    backgroundColor: colors.surface,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -280,15 +279,10 @@ const styles = StyleSheet.create({
   name: {
     fontSize: font.sizeHero,
     fontWeight: font.weightBold,
-    color: colors.text,
     lineHeight: 34,
   },
-  subtitle: {
-    fontSize: font.sizeLg,
-    color: colors.textMuted,
-  },
+  subtitle: { fontSize: font.sizeLg },
   qtyBlock: {
-    backgroundColor: colors.primary,
     borderRadius: radius.lg,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
@@ -298,7 +292,6 @@ const styles = StyleSheet.create({
   qtyNumber: {
     fontSize: font.sizeXxl,
     fontWeight: font.weightBold,
-    color: colors.white,
     lineHeight: 28,
   },
   qtyLabel: {
@@ -314,29 +307,21 @@ const styles = StyleSheet.create({
   },
   chip: {
     borderWidth: 1,
-    borderColor: colors.border,
     borderRadius: radius.pill,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.xs,
-    backgroundColor: colors.surface,
   },
   chipText: {
     fontSize: font.sizeSm,
-    color: colors.text,
     fontWeight: font.weightMedium,
   },
   openBtn: { marginTop: spacing.sm },
   deleteBtn: { marginTop: -spacing.xs },
-  headerBtn: {
-    color: colors.primary,
-    fontSize: font.sizeLg,
-    fontWeight: font.weightMedium,
-  },
+  headerBtn: { fontSize: font.sizeLg, fontWeight: font.weightMedium },
   tastings: { marginTop: spacing.lg },
   tastingsTitle: {
     fontSize: font.sizeXl,
     fontWeight: font.weightSemibold,
-    color: colors.text,
     paddingHorizontal: spacing.xl,
     marginBottom: spacing.sm,
   },
@@ -344,19 +329,16 @@ const styles = StyleSheet.create({
 
 const infoStyles = StyleSheet.create({
   block: {
-    backgroundColor: colors.surface,
     borderRadius: radius.md,
     padding: spacing.lg,
     gap: spacing.xs,
     borderWidth: 1,
-    borderColor: colors.border,
   },
   label: {
     fontSize: font.sizeSm,
     fontWeight: font.weightSemibold,
-    color: colors.textMuted,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
-  value: { fontSize: font.sizeLg, color: colors.text, lineHeight: 24 },
+  value: { fontSize: font.sizeLg, lineHeight: 24 },
 });

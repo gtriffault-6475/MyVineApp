@@ -1,7 +1,8 @@
 import React from 'react';
 import { View, TouchableOpacity, Text, StyleSheet } from 'react-native';
 import type { LocationType } from '../types/wine';
-import { colors, spacing, radius, font } from './ui/tokens';
+import { spacing, radius, font } from './ui/tokens';
+import { useTheme } from '@/context/ThemeContext';
 
 const OPTIONS: { value: LocationType; label: string }[] = [
   { value: 'home', label: 'À la maison' },
@@ -15,18 +16,22 @@ interface Props {
 }
 
 export function LocationPicker({ value, onChange }: Props) {
+  const { colors } = useTheme();
+
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.surface, borderColor: colors.border }]}>
       {OPTIONS.map((opt) => {
         const active = opt.value === value;
         return (
           <TouchableOpacity
             key={opt.value}
-            style={[styles.option, active && styles.activeOption]}
+            style={[styles.option, active && { backgroundColor: colors.primary }]}
             onPress={() => onChange(opt.value)}
             activeOpacity={0.75}
           >
-            <Text style={[styles.label, active && styles.activeLabel]}>{opt.label}</Text>
+            <Text style={[styles.label, { color: colors.textMuted }, active && styles.activeLabel]}>
+              {opt.label}
+            </Text>
           </TouchableOpacity>
         );
       })}
@@ -37,10 +42,8 @@ export function LocationPicker({ value, onChange }: Props) {
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    backgroundColor: colors.surface,
     borderRadius: radius.md,
     borderWidth: 1,
-    borderColor: colors.border,
     overflow: 'hidden',
   },
   option: {
@@ -49,17 +52,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  activeOption: {
-    backgroundColor: colors.primary,
-  },
   label: {
     fontSize: font.sizeSm,
     fontWeight: font.weightMedium,
-    color: colors.textMuted,
     textAlign: 'center',
   },
   activeLabel: {
-    color: colors.white,
+    color: '#FFFFFF',
     fontWeight: font.weightSemibold,
   },
 });

@@ -14,13 +14,15 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useCellarContext } from '@/context/CellarContext';
 import { CellarCard } from '@/components/CellarCard';
 import { EmptyState } from '@/components/EmptyState';
-import { colors, spacing, shadow, font, radius } from '@/components/ui/tokens';
+import { spacing, font, radius } from '@/components/ui/tokens';
+import { useTheme } from '@/context/ThemeContext';
 import type { RootStackParamList } from '@/navigation';
 
 export function CellarScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { state, reload } = useCellarContext();
   const { entries, loading } = state;
+  const { colors, shadow } = useTheme();
   const [search, setSearch] = useState('');
 
   const filtered = search.trim()
@@ -44,11 +46,11 @@ export function CellarScreen() {
   }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       {entries.length > 0 && (
-        <View style={styles.searchBar}>
+        <View style={[styles.searchBar, { backgroundColor: colors.background, borderBottomColor: colors.border }]}>
           <TextInput
-            style={styles.searchInput}
+            style={[styles.searchInput, { backgroundColor: colors.surface, color: colors.text }]}
             placeholder="Rechercher dans la cave…"
             placeholderTextColor={colors.textLight}
             value={search}
@@ -81,7 +83,9 @@ export function CellarScreen() {
             />
           ) : (
             <View style={styles.noResults}>
-              <Text style={styles.noResultsText}>Aucun résultat pour « {search} »</Text>
+              <Text style={[styles.noResultsText, { color: colors.textMuted }]}>
+                Aucun résultat pour « {search} »
+              </Text>
             </View>
           )
         }
@@ -96,7 +100,7 @@ export function CellarScreen() {
       />
 
       <TouchableOpacity
-        style={styles.fab}
+        style={[styles.fab, { backgroundColor: colors.primary }, shadow.fab]}
         onPress={() => navigation.navigate('AddCellarEntry', {})}
         activeOpacity={0.85}
       >
@@ -107,47 +111,31 @@ export function CellarScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  center: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
+  container: { flex: 1 },
+  center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   searchBar: {
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.sm,
-    backgroundColor: colors.background,
     borderBottomWidth: 1,
-    borderBottomColor: colors.border,
   },
   searchInput: {
-    backgroundColor: colors.surface,
     borderRadius: radius.md,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm + 2,
     fontSize: font.sizeMd,
-    color: colors.text,
     minHeight: 40,
   },
   list: {
     paddingVertical: spacing.md,
     paddingBottom: 80,
   },
-  emptyContainer: {
-    flex: 1,
-  },
+  emptyContainer: { flex: 1 },
   noResults: {
     flex: 1,
     alignItems: 'center',
     paddingTop: spacing.xxxl,
   },
-  noResultsText: {
-    fontSize: font.sizeLg,
-    color: colors.textMuted,
-  },
+  noResultsText: { fontSize: font.sizeLg },
   fab: {
     position: 'absolute',
     bottom: spacing.xxl,
@@ -155,14 +143,12 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
-    ...shadow.md,
   },
   fabIcon: {
     fontSize: 28,
-    color: colors.white,
+    color: '#FFFFFF',
     lineHeight: 32,
   },
 });

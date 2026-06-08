@@ -9,7 +9,7 @@ import { WineForm } from '@/components/WineForm';
 import { useWineForm } from '@/hooks/useWineForm';
 import { useImagePicker } from '@/hooks/useImagePicker';
 import { wineFormToDb, wineToForm } from '@/types/wine';
-import { colors } from '@/components/ui/tokens';
+import { useTheme } from '@/context/ThemeContext';
 import { recognizeWineLabel, getApiKey } from '@/services/wineRecognition';
 import type { RootStackParamList } from '@/navigation';
 
@@ -18,6 +18,7 @@ export function WineEditScreen() {
   const route = useRoute<RouteProp<RootStackParamList, 'WineEdit'>>();
   const { wineId } = route.params;
   const { state, dispatch } = useWineContext();
+  const { colors } = useTheme();
 
   const wine = state.wines.find((w) => w.id === wineId);
 

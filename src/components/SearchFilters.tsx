@@ -9,7 +9,8 @@ import {
   StyleSheet,
 } from 'react-native';
 import type { WineSearchFilters, WineSortOption, LocationType } from '@/types/wine';
-import { colors, spacing, radius, font } from '@/components/ui/tokens';
+import { spacing, radius, font } from '@/components/ui/tokens';
+import { useTheme } from '@/context/ThemeContext';
 
 const SORT_OPTIONS: { value: WineSortOption; label: string }[] = [
   { value: 'date_desc', label: 'Plus récent' },
@@ -32,18 +33,20 @@ interface Props {
   onChange: (filters: WineSearchFilters) => void;
 }
 
-function SectionLabel({ children }: { children: string }) {
-  return <Text style={styles.sectionLabel}>{children}</Text>;
+function SectionLabel({ children, color }: { children: string; color: string }) {
+  return <Text style={[styles.sectionLabel, { color }]}>{children}</Text>;
 }
 
 function ChipRow<T>({
   options,
   selected,
   onSelect,
+  colors,
 }: {
   options: { value: T; label: string }[];
   selected: T;
   onSelect: (v: T) => void;
+  colors: ReturnType<typeof useTheme>['colors'];
 }) {
   return (
     <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chipScroll}>
@@ -52,10 +55,22 @@ function ChipRow<T>({
         return (
           <TouchableOpacity
             key={String(opt.value)}
-            style={[styles.chip, active && styles.chipActive]}
+            style={[
+              styles.chip,
+              { borderColor: colors.border, backgroundColor: colors.surface },
+              active && { backgroundColor: colors.primary, borderColor: colors.primary },
+            ]}
             onPress={() => onSelect(opt.value)}
           >
-            <Text style={[styles.chipText, active && styles.chipTextActive]}>{opt.label}</Text>
+            <Text
+              style={[
+                styles.chipText,
+                { color: colors.textMuted },
+                active && { color: colors.white, fontWeight: '600' },
+              ]}
+            >
+              {opt.label}
+            </Text>
           </TouchableOpacity>
         );
       })}
@@ -63,115 +78,91 @@ function ChipRow<T>({
   );
 }
 
-function ScoreInput({
-  value,
-  placeholder,
-  onChange,
-}: {
-  value: number | null;
-  placeholder: string;
-  onChange: (v: number | null) => void;
-}) {
-  return (
-    <TextInput
-      style={styles.scoreInput}
-      value={value !== null ? String(value) : ''}
-      onChangeText={(t) => {
-        const n = parseInt(t, 10);
-        if (t === '') {
-          onChange(null);
-        } else if (!isNaN(n) && n >= 1 && n <= 10) {
-          onChange(n);
-        }
-      }}
-      placeholder={placeholder}
-      placeholderTextColor={colors.textMuted}
-      keyboardType="number-pad"
-      maxLength={2}
-    />
-  );
-}
-
-function DateInput({
-  value,
-  placeholder,
-  onChange,
-}: {
-  value: string | null;
-  placeholder: string;
-  onChange: (v: string | null) => void;
-}) {
-  return (
-    <TextInput
-      style={styles.dateInput}
-      value={value ?? ''}
-      onChangeText={(t) => {
-        if (t === '') {
-          onChange(null);
-        } else {
-          onChange(t);
-        }
-      }}
-      placeholder={placeholder}
-      placeholderTextColor={colors.textMuted}
-      autoCapitalize="none"
-      autoCorrect={false}
-    />
-  );
-}
-
 export function SearchFilters({ filters, onChange }: Props) {
+  const { colors } = useTheme();
   const set = <K extends keyof WineSearchFilters>(key: K, value: WineSearchFilters[K]) =>
     onChange({ ...filters, [key]: value });
 
   return (
-    <View style={styles.container}>
-      <SectionLabel>Trier par</SectionLabel>
+    <View style={[styles.container, { backgroundColor: colors.surface, borderBottomColor: colors.border }]}>
+      <SectionLabel color={colors.textMuted}>Trier par</SectionLabel>
       <ChipRow
         options={SORT_OPTIONS}
         selected={filters.sortBy}
         onSelect={(v) => set('sortBy', v)}
+        colors={colors}
       />
 
-      <SectionLabel>Lieu</SectionLabel>
+      <SectionLabel color={colors.textMuted}>Lieu</SectionLabel>
       <ChipRow
         options={LOCATION_OPTIONS}
         selected={filters.locationType}
         onSelect={(v) => set('locationType', v)}
+        colors={colors}
       />
 
-      <SectionLabel>Note (1–10)</SectionLabel>
+      <SectionLabel color={colors.textMuted}>Note (1–10)</SectionLabel>
       <View style={styles.rangeRow}>
-        <ScoreInput
-          value={filters.scoreMin}
+        <TextInput
+          style={[styles.scoreInput, { borderColor: colors.border, color: colors.text, backgroundColor: colors.surface }]}
+          value={filters.scoreMin !== null ? String(filters.scoreMin) : ''}
+          onChangeText={(t) => {
+            const n = parseInt(t, 10);
+            if (t === '') {
+              set('scoreMin', null);
+            } else if (!isNaN(n) && n >= 1 && n <= 10) {
+              set('scoreMin', n);
+            }
+          }}
           placeholder="Min"
-          onChange={(v) => set('scoreMin', v)}
+          placeholderTextColor={colors.textMuted}
+          keyboardType="number-pad"
+          maxLength={2}
         />
-        <Text style={styles.rangeSep}>–</Text>
-        <ScoreInput
-          value={filters.scoreMax}
+        <Text style={[styles.rangeSep, { color: colors.textMuted }]}>–</Text>
+        <TextInput
+          style={[styles.scoreInput, { borderColor: colors.border, color: colors.text, backgroundColor: colors.surface }]}
+          value={filters.scoreMax !== null ? String(filters.scoreMax) : ''}
+          onChangeText={(t) => {
+            const n = parseInt(t, 10);
+            if (t === '') {
+              set('scoreMax', null);
+            } else if (!isNaN(n) && n >= 1 && n <= 10) {
+              set('scoreMax', n);
+            }
+          }}
           placeholder="Max"
-          onChange={(v) => set('scoreMax', v)}
+          placeholderTextColor={colors.textMuted}
+          keyboardType="number-pad"
+          maxLength={2}
         />
       </View>
 
-      <SectionLabel>Date de dégustation</SectionLabel>
+      <SectionLabel color={colors.textMuted}>Date de dégustation</SectionLabel>
       <View style={styles.rangeRow}>
-        <DateInput
-          value={filters.dateFrom}
+        <TextInput
+          style={[styles.dateInput, { borderColor: colors.border, color: colors.text, backgroundColor: colors.surface }]}
+          value={filters.dateFrom ?? ''}
+          onChangeText={(t) => set('dateFrom', t === '' ? null : t)}
           placeholder="Du  AAAA-MM-JJ"
-          onChange={(v) => set('dateFrom', v)}
+          placeholderTextColor={colors.textMuted}
+          autoCapitalize="none"
+          autoCorrect={false}
         />
-        <Text style={styles.rangeSep}>–</Text>
-        <DateInput
-          value={filters.dateTo}
+        <Text style={[styles.rangeSep, { color: colors.textMuted }]}>–</Text>
+        <TextInput
+          style={[styles.dateInput, { borderColor: colors.border, color: colors.text, backgroundColor: colors.surface }]}
+          value={filters.dateTo ?? ''}
+          onChangeText={(t) => set('dateTo', t === '' ? null : t)}
           placeholder="Au  AAAA-MM-JJ"
-          onChange={(v) => set('dateTo', v)}
+          placeholderTextColor={colors.textMuted}
+          autoCapitalize="none"
+          autoCorrect={false}
         />
       </View>
 
       <View style={styles.toggleRow}>
-        <Text style={styles.toggleLabel}>À racheter uniquement</Text>
+        <Text style={[styles.toggleLabel, { color: colors.text }]}>À racheter uniquement</Text>
         <Switch
           value={filters.buyAgainOnly}
           onValueChange={(v) => set('buyAgainOnly', v)}
@@ -189,13 +180,10 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.md,
     gap: spacing.xs,
     borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-    backgroundColor: colors.surface,
   },
   sectionLabel: {
     fontSize: font.sizeSm,
     fontWeight: '600',
-    color: colors.textMuted,
     marginTop: spacing.sm,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
@@ -208,21 +196,10 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.xs,
     borderRadius: radius.pill,
     borderWidth: 1,
-    borderColor: colors.border,
     marginRight: spacing.xs,
-    backgroundColor: colors.white,
-  },
-  chipActive: {
-    backgroundColor: colors.primary,
-    borderColor: colors.primary,
   },
   chipText: {
     fontSize: font.sizeSm,
-    color: colors.textMuted,
-  },
-  chipTextActive: {
-    color: colors.white,
-    fontWeight: '600',
   },
   rangeRow: {
     flexDirection: 'row',
@@ -232,29 +209,22 @@ const styles = StyleSheet.create({
   scoreInput: {
     width: 64,
     borderWidth: 1,
-    borderColor: colors.border,
     borderRadius: radius.md,
     paddingHorizontal: spacing.sm,
     paddingVertical: spacing.xs,
     fontSize: font.sizeMd,
-    color: colors.text,
-    backgroundColor: colors.white,
     textAlign: 'center',
   },
   dateInput: {
     flex: 1,
     borderWidth: 1,
-    borderColor: colors.border,
     borderRadius: radius.md,
     paddingHorizontal: spacing.sm,
     paddingVertical: spacing.xs,
     fontSize: font.sizeSm,
-    color: colors.text,
-    backgroundColor: colors.white,
   },
   rangeSep: {
     fontSize: font.sizeMd,
-    color: colors.textMuted,
   },
   toggleRow: {
     flexDirection: 'row',
@@ -264,6 +234,5 @@ const styles = StyleSheet.create({
   },
   toggleLabel: {
     fontSize: font.sizeMd,
-    color: colors.text,
   },
 });

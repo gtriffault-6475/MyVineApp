@@ -18,6 +18,7 @@ declare module 'react-native-fs' {
     mkdir(filepath: string, options?: { NSURLIsExcludedFromBackupKey?: boolean }): Promise<void>;
     copyFile(filepath: string, destPath: string): Promise<void>;
     readFile(filepath: string, encoding?: string): Promise<string>;
+    writeFile(filepath: string, contents: string, encoding?: string): Promise<void>;
     unlink(filepath: string): Promise<void>;
     stat(filepath: string): Promise<StatResult>;
   };

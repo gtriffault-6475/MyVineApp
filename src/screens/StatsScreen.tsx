@@ -9,11 +9,13 @@ import {
 import { getDb } from '@/db/database';
 import { getStats } from '@/db/queries';
 import type { WineStats } from '@/types/wine';
-import { colors, spacing, font, radius, shadow } from '@/components/ui/tokens';
+import { spacing, font, radius } from '@/components/ui/tokens';
+import { useTheme } from '@/context/ThemeContext';
 import { useWineContext } from '@/context/WineContext';
 
 export function StatsScreen() {
   const { state } = useWineContext();
+  const { colors, shadow, serifFontKpi } = useTheme();
   const [stats, setStats] = useState<WineStats | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -44,8 +46,8 @@ export function StatsScreen() {
     return (
       <View style={styles.center}>
         <Text style={styles.emptyIcon}>📊</Text>
-        <Text style={styles.emptyTitle}>Pas encore de statistiques</Text>
-        <Text style={styles.emptyMsg}>Ajoutez des vins pour voir vos stats.</Text>
+        <Text style={[styles.emptyTitle, { color: colors.text }]}>Pas encore de statistiques</Text>
+        <Text style={[styles.emptyMsg, { color: colors.textMuted }]}>Ajoutez des vins pour voir vos stats.</Text>
       </View>
     );
   }
@@ -54,38 +56,60 @@ export function StatsScreen() {
     stats.total > 0 ? Math.round((stats.buy_again_count / stats.total) * 100) : 0;
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+    <ScrollView
+      style={[styles.container, { backgroundColor: colors.background }]}
+      contentContainerStyle={styles.content}
+    >
       <View style={styles.kpiRow}>
-        <KpiCard value={stats.total.toString()} label="Vins dégustés" emoji="🍷" />
+        <KpiCard
+          value={stats.total.toString()}
+          label="Vins dégustés"
+          emoji="🍷"
+          colors={colors}
+          shadow={shadow}
+          serifFontKpi={serifFontKpi}
+        />
         <KpiCard
           value={stats.avg_score != null ? stats.avg_score.toFixed(1) : '–'}
           label="Note moyenne"
           emoji="⭐"
+          colors={colors}
+          shadow={shadow}
+          serifFontKpi={serifFontKpi}
         />
-        <KpiCard value={`${buyAgainPct}%`} label="À racheter" emoji="↺" />
+        <KpiCard
+          value={`${buyAgainPct}%`}
+          label="À racheter"
+          emoji="↺"
+          colors={colors}
+          shadow={shadow}
+          serifFontKpi={serifFontKpi}
+        />
       </View>
 
       {stats.top_appellations.length > 0 && (
-        <Section title="Top appellations">
+        <Section title="Top appellations" colors={colors} shadow={shadow}>
           {stats.top_appellations.map((a) => (
             <BarRow
               key={a.appellation}
               label={a.appellation}
               count={a.count}
               max={stats.top_appellations[0].count}
+              colors={colors}
             />
           ))}
         </Section>
       )}
 
       {stats.top_producers.length > 0 && (
-        <Section title="Top producteurs">
+        <Section title="Top producteurs" colors={colors} shadow={shadow}>
           {stats.top_producers.map((p) => (
             <BarRow
               key={p.producer}
               label={p.producer}
               count={p.count}
               max={stats.top_producers[0].count}
+              colors={colors}
             />
           ))}
         </Section>
@@ -94,66 +118,110 @@ export function StatsScreen() {
   );
 }
 
-function KpiCard({ value, label, emoji }: { value: string; label: string; emoji: string }) {
+type ThemeColors = ReturnType<typeof useTheme>['colors'];
+type ThemeShadow = ReturnType<typeof useTheme>['shadow'];
+
+function KpiCard({
+  value,
+  label,
+  emoji,
+  colors,
+  shadow,
+  serifFontKpi,
+}: {
+  value: string;
+  label: string;
+  emoji: string;
+  colors: ThemeColors;
+  shadow: ThemeShadow;
+  serifFontKpi: string | undefined;
+}) {
   return (
-    <View style={kpiStyles.card}>
+    <View
+      style={[
+        kpiStyles.card,
+        { backgroundColor: colors.surface, borderColor: colors.border },
+        shadow.sm,
+      ]}
+    >
       <Text style={kpiStyles.emoji}>{emoji}</Text>
-      <Text style={kpiStyles.value}>{value}</Text>
-      <Text style={kpiStyles.label}>{label}</Text>
+      <Text style={[kpiStyles.value, { color: colors.text, fontFamily: serifFontKpi }]}>
+        {value}
+      </Text>
+      <Text style={[kpiStyles.label, { color: colors.textMuted }]}>{label}</Text>
     </View>
   );
 }
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
+function Section({
+  title,
+  children,
+  colors,
+  shadow,
+}: {
+  title: string;
+  children: React.ReactNode;
+  colors: ThemeColors;
+  shadow: ThemeShadow;
+}) {
   return (
     <View style={sectionStyles.container}>
-      <Text style={sectionStyles.title}>{title}</Text>
-      <View style={sectionStyles.card}>{children}</View>
+      <Text style={[sectionStyles.title, { color: colors.text }]}>{title}</Text>
+      <View style={[sectionStyles.card, { backgroundColor: colors.surface, borderColor: colors.border }, shadow.sm]}>
+        {children}
+      </View>
     </View>
   );
 }
 
-function BarRow({ label, count, max }: { label: string; count: number; max: number }) {
+function BarRow({
+  label,
+  count,
+  max,
+  colors,
+}: {
+  label: string;
+  count: number;
+  max: number;
+  colors: ThemeColors;
+}) {
   const pct = max > 0 ? count / max : 0;
   return (
     <View style={barStyles.row}>
-      <Text style={barStyles.label} numberOfLines={1}>
+      <Text style={[barStyles.label, { color: colors.text }]} numberOfLines={1}>
         {label}
       </Text>
-      <View style={barStyles.barBg}>
-        <View style={[barStyles.barFill, { flex: pct }]} />
+      <View style={[barStyles.barBg, { backgroundColor: colors.surfaceAlt }]}>
+        <View style={[barStyles.barFill, { flex: pct, backgroundColor: colors.primary }]} />
         <View style={{ flex: 1 - pct }} />
       </View>
-      <Text style={barStyles.count}>{count}</Text>
+      <Text style={[barStyles.count, { color: colors.textMuted }]}>{count}</Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
+  container: { flex: 1 },
   content: { padding: spacing.lg, paddingBottom: spacing.xxxl, gap: spacing.xl },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: spacing.md },
   emptyIcon: { fontSize: 48 },
-  emptyTitle: { fontSize: font.sizeXxl, fontWeight: font.weightBold, color: colors.text },
-  emptyMsg: { fontSize: font.sizeLg, color: colors.textMuted, textAlign: 'center', paddingHorizontal: spacing.xl },
+  emptyTitle: { fontSize: font.sizeXxl, fontWeight: font.weightBold },
+  emptyMsg: { fontSize: font.sizeLg, textAlign: 'center', paddingHorizontal: spacing.xl },
   kpiRow: { flexDirection: 'row', gap: spacing.md },
 });
 
 const kpiStyles = StyleSheet.create({
   card: {
     flex: 1,
-    backgroundColor: colors.white,
     borderRadius: radius.lg,
     padding: spacing.lg,
     alignItems: 'center',
     gap: spacing.xs,
-    ...shadow.sm,
     borderWidth: 1,
-    borderColor: colors.border,
   },
   emoji: { fontSize: 24 },
-  value: { fontSize: font.sizeXxl, fontWeight: font.weightBold, color: colors.text },
-  label: { fontSize: font.sizeSm, color: colors.textMuted, textAlign: 'center' },
+  value: { fontSize: font.sizeXxl, fontWeight: font.weightBold },
+  label: { fontSize: font.sizeSm, textAlign: 'center' },
 });
 
 const sectionStyles = StyleSheet.create({
@@ -161,30 +229,25 @@ const sectionStyles = StyleSheet.create({
   title: {
     fontSize: font.sizeLg,
     fontWeight: font.weightSemibold,
-    color: colors.text,
   },
   card: {
-    backgroundColor: colors.white,
     borderRadius: radius.lg,
     padding: spacing.lg,
     gap: spacing.md,
-    ...shadow.sm,
     borderWidth: 1,
-    borderColor: colors.border,
   },
 });
 
 const barStyles = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
-  label: { width: 120, fontSize: font.sizeMd, color: colors.text },
+  label: { width: 120, fontSize: font.sizeMd },
   barBg: {
     flex: 1,
     flexDirection: 'row',
     height: 8,
     borderRadius: radius.full,
-    backgroundColor: colors.surface,
     overflow: 'hidden',
   },
-  barFill: { backgroundColor: colors.primary, borderRadius: radius.full },
-  count: { width: 24, fontSize: font.sizeSm, color: colors.textMuted, textAlign: 'right' },
+  barFill: { borderRadius: radius.full },
+  count: { width: 24, fontSize: font.sizeSm, textAlign: 'right' },
 });

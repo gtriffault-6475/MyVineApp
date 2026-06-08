@@ -12,7 +12,8 @@ import { Button } from './ui/Button';
 import { DatePickerField } from './DatePickerField';
 import { LabelPhoto } from './LabelPhoto';
 import type { CellarForm as CellarFormType } from '../types/cellar';
-import { colors, spacing, font } from './ui/tokens';
+import { spacing, font } from './ui/tokens';
+import { useTheme } from '@/context/ThemeContext';
 
 interface FormErrors {
   name?: string;
@@ -41,6 +42,7 @@ export function CellarForm({
   submitLabel = 'Enregistrer',
   onCancel,
 }: Props) {
+  const { colors } = useTheme();
   const [form, setForm] = useState<CellarFormType>(initialForm);
   const [errors, setErrors] = useState<FormErrors>({});
 
@@ -137,7 +139,7 @@ export function CellarForm({
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Stock</Text>
+          <Text style={[styles.sectionTitle, { color: colors.textMuted }]}>Stock</Text>
           <View style={styles.row}>
             <TextInput
               label="Quantité *"
@@ -159,7 +161,7 @@ export function CellarForm({
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Apogée</Text>
+          <Text style={[styles.sectionTitle, { color: colors.textMuted }]}>Apogée</Text>
           <View style={styles.row}>
             <TextInput
               label="De"
@@ -184,7 +186,7 @@ export function CellarForm({
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Achat</Text>
+          <Text style={[styles.sectionTitle, { color: colors.textMuted }]}>Achat</Text>
           <View style={styles.row}>
             <View style={styles.flex}>
               <DatePickerField
@@ -242,7 +244,6 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: font.sizeSm,
     fontWeight: font.weightSemibold,
-    color: colors.textMuted,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
     marginBottom: -spacing.xs,
@@ -266,7 +267,5 @@ const styles = StyleSheet.create({
     marginTop: spacing.lg,
     gap: spacing.md,
   },
-  cancelBtn: {
-    marginTop: -spacing.xs,
-  },
+  cancelBtn: { marginTop: -spacing.xs },
 });

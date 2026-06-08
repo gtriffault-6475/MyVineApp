@@ -7,7 +7,8 @@ import {
   StyleSheet,
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { colors, spacing, font, radius } from './ui/tokens';
+import { spacing, font, radius } from './ui/tokens';
+import { useTheme } from '@/context/ThemeContext';
 
 interface Props {
   label?: string;
@@ -38,6 +39,7 @@ function toISODate(date: Date): string {
 }
 
 export function DatePickerField({ label = 'Date', modalTitle, value, onChange, error }: Props) {
+  const { colors } = useTheme();
   const [open, setOpen] = useState(false);
   const [tempDate, setTempDate] = useState<Date>(new Date());
 
@@ -62,34 +64,35 @@ export function DatePickerField({ label = 'Date', modalTitle, value, onChange, e
 
   return (
     <View>
-      <Text style={styles.label}>{label}</Text>
+      <Text style={[styles.label, { color: colors.textMuted }]}>{label}</Text>
       <TouchableOpacity
-        style={[styles.field, !!error && styles.fieldError]}
+        style={[
+          styles.field,
+          { backgroundColor: colors.white, borderColor: error ? colors.error : colors.border },
+        ]}
         onPress={handleOpen}
         activeOpacity={0.7}
       >
-        <Text style={[styles.valueText, !value && styles.placeholder]}>
+        <Text style={[styles.valueText, { color: value ? colors.text : colors.textLight }]}>
           {value ? formatDisplay(value) : 'Sélectionner une date'}
         </Text>
-        <Text style={styles.chevron}>›</Text>
+        <Text style={[styles.chevron, { color: colors.textLight }]}>›</Text>
       </TouchableOpacity>
-      {!!error && <Text style={styles.errorText}>{error}</Text>}
+      {!!error && <Text style={[styles.errorText, { color: colors.error }]}>{error}</Text>}
 
       <Modal visible={open} transparent animationType="slide">
         <View style={styles.modalContainer}>
-          <TouchableOpacity
-            style={styles.backdrop}
-            activeOpacity={1}
-            onPress={handleCancel}
-          />
-          <View style={styles.sheet}>
-            <View style={styles.sheetHeader}>
+          <TouchableOpacity style={styles.backdrop} activeOpacity={1} onPress={handleCancel} />
+          <View style={[styles.sheet, { backgroundColor: colors.white, borderColor: colors.border }]}>
+            <View style={[styles.sheetHeader, { borderBottomColor: colors.border }]}>
               <TouchableOpacity onPress={handleClear} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
-                <Text style={styles.clearBtn}>Effacer</Text>
+                <Text style={[styles.clearBtn, { color: colors.textMuted }]}>Effacer</Text>
               </TouchableOpacity>
-              <Text style={styles.sheetTitle}>{modalTitle ?? 'Sélectionner une date'}</Text>
+              <Text style={[styles.sheetTitle, { color: colors.text }]}>
+                {modalTitle ?? 'Sélectionner une date'}
+              </Text>
               <TouchableOpacity onPress={handleConfirm} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
-                <Text style={styles.confirmBtn}>Confirmer</Text>
+                <Text style={[styles.confirmBtn, { color: colors.primary }]}>Confirmer</Text>
               </TouchableOpacity>
             </View>
             <DateTimePicker
@@ -112,7 +115,6 @@ const styles = StyleSheet.create({
   label: {
     fontSize: font.sizeSm,
     fontWeight: font.weightMedium,
-    color: colors.textMuted,
     marginBottom: spacing.xs,
   },
   field: {
@@ -120,32 +122,21 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     borderWidth: 1,
-    borderColor: colors.border,
     borderRadius: radius.md,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm + 2,
-    backgroundColor: colors.white,
     minHeight: 44,
-  },
-  fieldError: {
-    borderColor: colors.error,
   },
   valueText: {
     fontSize: font.sizeMd,
-    color: colors.text,
-  },
-  placeholder: {
-    color: colors.textLight,
   },
   chevron: {
     fontSize: 20,
-    color: colors.textLight,
     lineHeight: 22,
     transform: [{ rotate: '90deg' }],
   },
   errorText: {
     fontSize: font.sizeSm,
-    color: colors.error,
     marginTop: spacing.xs,
   },
   modalContainer: {
@@ -157,7 +148,6 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.35)',
   },
   sheet: {
-    backgroundColor: colors.white,
     borderTopLeftRadius: radius.xl,
     borderTopRightRadius: radius.xl,
     paddingBottom: spacing.xxxl,
@@ -169,21 +159,17 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
     borderBottomWidth: 1,
-    borderBottomColor: colors.border,
   },
   sheetTitle: {
     fontSize: font.sizeMd,
     fontWeight: font.weightSemibold,
-    color: colors.text,
   },
   clearBtn: {
     fontSize: font.sizeMd,
-    color: colors.textMuted,
   },
   confirmBtn: {
     fontSize: font.sizeMd,
     fontWeight: font.weightSemibold,
-    color: colors.primary,
   },
   picker: {
     marginHorizontal: spacing.md,

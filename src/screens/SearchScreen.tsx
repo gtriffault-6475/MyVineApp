@@ -17,7 +17,8 @@ import { searchWines } from '@/db/queries';
 import { getDb } from '@/db/database';
 import { DEFAULT_FILTERS } from '@/types/wine';
 import type { Wine, WineSearchFilters } from '@/types/wine';
-import { colors, spacing, font, radius } from '@/components/ui/tokens';
+import { spacing, font, radius } from '@/components/ui/tokens';
+import { useTheme } from '@/context/ThemeContext';
 import type { RootStackParamList } from '@/navigation';
 
 function activeFilterCount(filters: WineSearchFilters): number {
@@ -32,27 +33,24 @@ function activeFilterCount(filters: WineSearchFilters): number {
 
 export function SearchScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const { colors } = useTheme();
   const [filters, setFilters] = useState<WineSearchFilters>(DEFAULT_FILTERS);
   const [results, setResults] = useState<Wine[]>([]);
   const [loading, setLoading] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const runSearch = useCallback(
-    async (f: WineSearchFilters) => {
-      setLoading(true);
-      try {
-        const db = await getDb();
-        const wines = await searchWines(db, f);
-        setResults(wines);
-      } finally {
-        setLoading(false);
-      }
-    },
-    []
-  );
+  const runSearch = useCallback(async (f: WineSearchFilters) => {
+    setLoading(true);
+    try {
+      const db = await getDb();
+      const wines = await searchWines(db, f);
+      setResults(wines);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
-  // Debounce text changes, instant for filter changes
   const handleFiltersChange = useCallback(
     (next: WineSearchFilters, instant = false) => {
       setFilters(next);
@@ -66,7 +64,6 @@ export function SearchScreen() {
     [runSearch]
   );
 
-  // Load all wines on mount
   useEffect(() => {
     runSearch(DEFAULT_FILTERS);
   }, [runSearch]);
@@ -87,9 +84,8 @@ export function SearchScreen() {
   const count = activeFilterCount(filters);
 
   return (
-    <View style={styles.container}>
-      {/* Top bar: search input + filter toggle */}
-      <View style={styles.topBar}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <View style={[styles.topBar, { backgroundColor: colors.surface, borderBottomColor: colors.border }]}>
         <View style={styles.searchRow}>
           <TextInput
             value={filters.term}
@@ -101,10 +97,20 @@ export function SearchScreen() {
             clearButtonMode="while-editing"
           />
           <TouchableOpacity
-            style={[styles.filterButton, showFilters && styles.filterButtonActive]}
+            style={[
+              styles.filterButton,
+              { borderColor: colors.border, backgroundColor: colors.surfaceAlt },
+              showFilters && { backgroundColor: colors.primary, borderColor: colors.primary },
+            ]}
             onPress={() => setShowFilters((v) => !v)}
           >
-            <Text style={[styles.filterButtonText, showFilters && styles.filterButtonTextActive]}>
+            <Text
+              style={[
+                styles.filterButtonText,
+                { color: colors.textMuted },
+                showFilters && { color: colors.white },
+              ]}
+            >
               Filtres{count > 0 ? ` (${count})` : ''}
             </Text>
           </TouchableOpacity>
@@ -112,26 +118,29 @@ export function SearchScreen() {
 
         {count > 0 && !showFilters && (
           <TouchableOpacity onPress={handleReset} style={styles.resetBanner}>
-            <Text style={styles.resetBannerText}>
+            <Text style={[styles.resetBannerText, { color: colors.primary }]}>
               {count} filtre{count > 1 ? 's' : ''} actif{count > 1 ? 's' : ''} — Réinitialiser
             </Text>
           </TouchableOpacity>
         )}
       </View>
 
-      {/* Collapsible filter panel */}
       {showFilters && (
         <View>
           <SearchFilters filters={filters} onChange={handleFilterPanelChange} />
           {count > 0 && (
-            <TouchableOpacity style={styles.resetButton} onPress={handleReset}>
-              <Text style={styles.resetButtonText}>Réinitialiser tous les filtres</Text>
+            <TouchableOpacity
+              style={[styles.resetButton, { borderColor: colors.error }]}
+              onPress={handleReset}
+            >
+              <Text style={[styles.resetButtonText, { color: colors.error }]}>
+                Réinitialiser tous les filtres
+              </Text>
             </TouchableOpacity>
           )}
         </View>
       )}
 
-      {/* Results */}
       {loading ? (
         <View style={styles.center}>
           <ActivityIndicator color={colors.primary} />
@@ -148,10 +157,7 @@ export function SearchScreen() {
           )}
           contentContainerStyle={results.length === 0 ? styles.emptyContainer : styles.list}
           ListEmptyComponent={
-            <EmptyState
-              title="Aucun résultat"
-              message="Essayez d'autres critères de recherche."
-            />
+            <EmptyState title="Aucun résultat" message="Essayez d'autres critères de recherche." />
           }
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
@@ -162,15 +168,13 @@ export function SearchScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
+  container: { flex: 1 },
   topBar: {
     paddingHorizontal: spacing.lg,
     paddingTop: spacing.lg,
     paddingBottom: spacing.sm,
     gap: spacing.xs,
-    backgroundColor: colors.white,
     borderBottomWidth: 1,
-    borderBottomColor: colors.border,
   },
   searchRow: {
     flexDirection: 'row',
@@ -186,20 +190,10 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.sm,
     borderRadius: radius.md,
     borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
-  },
-  filterButtonActive: {
-    backgroundColor: colors.primary,
-    borderColor: colors.primary,
   },
   filterButtonText: {
     fontSize: font.sizeSm,
     fontWeight: '600',
-    color: colors.textMuted,
-  },
-  filterButtonTextActive: {
-    color: colors.white,
   },
   resetBanner: {
     paddingVertical: spacing.xs,
@@ -207,7 +201,6 @@ const styles = StyleSheet.create({
   },
   resetBannerText: {
     fontSize: font.sizeSm,
-    color: colors.primary,
     fontWeight: '500',
   },
   resetButton: {
@@ -218,11 +211,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: radius.md,
     borderWidth: 1,
-    borderColor: colors.error,
   },
   resetButtonText: {
     fontSize: font.sizeSm,
-    color: colors.error,
     fontWeight: '500',
   },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },

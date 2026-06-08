@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, TouchableOpacity, Text, StyleSheet } from 'react-native';
-import { colors, spacing } from './ui/tokens';
+import { spacing } from './ui/tokens';
+import { useTheme } from '@/context/ThemeContext';
 
 interface Props {
   score: number | null;
@@ -9,10 +10,10 @@ interface Props {
   size?: number;
 }
 
-// Maps 1–5 stars to 2–10 score values
 const STAR_VALUES = [2, 4, 6, 8, 10];
 
 export function StarRating({ score, onChange, readOnly = false, size = 28 }: Props) {
+  const { colors } = useTheme();
   const filledStars = score !== null ? Math.round(score / 2) : 0;
 
   return (
@@ -20,14 +21,9 @@ export function StarRating({ score, onChange, readOnly = false, size = 28 }: Pro
       {STAR_VALUES.map((val, idx) => {
         const filled = idx < filledStars;
         const star = filled ? '★' : '☆';
+        const color = filled ? colors.scoreGold : colors.border;
         return readOnly ? (
-          <Text
-            key={val}
-            style={[
-              styles.star,
-              { fontSize: size, color: filled ? colors.scoreGold : colors.border },
-            ]}
-          >
+          <Text key={val} style={[styles.star, { fontSize: size, color }]}>
             {star}
           </Text>
         ) : (
@@ -37,19 +33,12 @@ export function StarRating({ score, onChange, readOnly = false, size = 28 }: Pro
             activeOpacity={0.7}
             hitSlop={{ top: 8, bottom: 8, left: 4, right: 4 }}
           >
-            <Text
-              style={[
-                styles.star,
-                { fontSize: size, color: filled ? colors.scoreGold : colors.border },
-              ]}
-            >
-              {star}
-            </Text>
+            <Text style={[styles.star, { fontSize: size, color }]}>{star}</Text>
           </TouchableOpacity>
         );
       })}
       {score !== null && (
-        <Text style={styles.label}>{score.toFixed(1)}</Text>
+        <Text style={[styles.label, { color: colors.textMuted }]}>{score.toFixed(1)}</Text>
       )}
     </View>
   );
@@ -66,7 +55,6 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 13,
-    color: colors.textMuted,
     marginLeft: spacing.xs,
   },
 });
