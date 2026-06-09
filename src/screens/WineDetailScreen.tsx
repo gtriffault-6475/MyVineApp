@@ -127,7 +127,8 @@ export function WineDetailScreen() {
         <Text
           style={[
             styles.name,
-            { color: colors.text, fontFamily: serifFontWine },
+            { color: colors.text },
+            serifFontWine,
           ]}
         >
           {wine.name}

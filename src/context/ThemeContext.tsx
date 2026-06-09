@@ -12,15 +12,24 @@ import {
 
 export type AppearanceMode = 'auto' | 'light' | 'dark';
 
+export type SerifStyle = {
+  fontFamily: string;
+  fontWeight: '600' | '700';
+};
+
 interface ThemeValue {
   colors: Colors;
   shadow: ShadowSet;
   isDark: boolean;
-  serifFontWine: string | undefined;
-  serifFontKpi: string | undefined;
+  /** Spread into a Text style to get the serif wine-name look (SemiBold). undefined in light mode. */
+  serifFontWine: SerifStyle | undefined;
+  /** Spread into a Text style to get the serif KPI look (Bold). undefined in light mode. */
+  serifFontKpi: SerifStyle | undefined;
   appearance: AppearanceMode;
   setAppearance: (mode: AppearanceMode) => void;
 }
+
+const SERIF_FAMILY = 'CormorantGaramond';
 
 const PREFS_PATH = () => `${RNFS.DocumentDirectoryPath}/.myvine_prefs.json`;
 
@@ -57,8 +66,12 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   const colors = isDark ? darkColors : lightColors;
   const shadow = isDark ? darkShadow : lightShadow;
-  const serifFontWine = isDark ? 'CormorantGaramond-SemiBold' : undefined;
-  const serifFontKpi = isDark ? 'CormorantGaramond-Bold' : undefined;
+  const serifFontWine: SerifStyle | undefined = isDark
+    ? { fontFamily: SERIF_FAMILY, fontWeight: '600' }
+    : undefined;
+  const serifFontKpi: SerifStyle | undefined = isDark
+    ? { fontFamily: SERIF_FAMILY, fontWeight: '700' }
+    : undefined;
 
   return (
     <ThemeContext.Provider

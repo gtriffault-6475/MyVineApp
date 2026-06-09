@@ -159,7 +159,7 @@ export function CellarDetailScreen() {
       <View style={styles.main}>
         <View style={styles.titleRow}>
           <View style={styles.titleFlex}>
-            <Text style={[styles.name, { color: colors.text, fontFamily: serifFontWine }]}>
+            <Text style={[styles.name, { color: colors.text }, serifFontWine]}>
               {entry.name}
               {entry.vintage ? ` ${entry.vintage}` : ''}
             </Text>

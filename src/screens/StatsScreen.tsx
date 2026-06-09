@@ -139,7 +139,7 @@ function KpiCard({
   colors: ThemeColors;
   shadow: ThemeShadow;
   isDark: boolean;
-  serifFontKpi: string | undefined;
+  serifFontKpi: ReturnType<typeof useTheme>['serifFontKpi'];
 }) {
   return (
     <View
@@ -150,7 +150,7 @@ function KpiCard({
       ]}
     >
       <Text style={kpiStyles.emoji}>{emoji}</Text>
-      <Text style={[kpiStyles.value, { color: isDark ? colors.scoreGold : colors.text, fontFamily: serifFontKpi }]}>
+      <Text style={[kpiStyles.value, { color: isDark ? colors.scoreGold : colors.text }, serifFontKpi]}>
         {value}
       </Text>
       <Text style={[kpiStyles.label, { color: colors.textMuted }]}>{label}</Text>

@@ -41,10 +41,8 @@
 		<string>FontAwesome6_Brands.ttf</string>
 		<string>Foundation.ttf</string>
 		<string>Fontisto.ttf</string>
-		<string>CormorantGaramond-SemiBold.ttf</string>
-		<string>CormorantGaramond-MediumItalic.ttf</string>
-		<string>CormorantGaramond-Medium.ttf</string>
-		<string>CormorantGaramond-Bold.ttf</string>
+		<string>CormorantGaramond-VariableFont_wght.ttf</string>
+		<string>CormorantGaramond-Italic-VariableFont_wght.ttf</string>
 	</array>
 </dict>
 </plist>

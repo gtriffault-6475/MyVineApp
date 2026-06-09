@@ -56,7 +56,7 @@ export function WineCard({ wine, onPress }: Props) {
       <View style={styles.content}>
         <View style={styles.header}>
           <Text
-            style={[styles.name, { color: colors.text, fontFamily: serifFontWine }]}
+            style={[styles.name, { color: colors.text }, serifFontWine]}
             numberOfLines={1}
           >
             {wine.name}
