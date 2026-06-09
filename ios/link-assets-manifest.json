@@ -1,0 +1,21 @@
+{
+  "migIndex": 1,
+  "data": [
+    {
+      "path": "assets/fonts/CormorantGaramond-Bold.ttf",
+      "sha1": "6f97151d5560de36d3d06a5311dd2d097a44a3cd"
+    },
+    {
+      "path": "assets/fonts/CormorantGaramond-Medium.ttf",
+      "sha1": "6c5ee421aefcd9c22641e79740fb0199d1be33b6"
+    },
+    {
+      "path": "assets/fonts/CormorantGaramond-MediumItalic.ttf",
+      "sha1": "ed572e63336d0b886773266e12aa74da90f1098e"
+    },
+    {
+      "path": "assets/fonts/CormorantGaramond-SemiBold.ttf",
+      "sha1": "1b2fd525de4844263674387cf4fe84db86d245af"
+    }
+  ]
+}
