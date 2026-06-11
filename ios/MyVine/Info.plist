@@ -54,8 +54,12 @@
 	<key>UIAppFonts</key>
 	<array>
 		<string>Ionicons.ttf</string>
-		<string>CormorantGaramond-VariableFont_wght.ttf</string>
-		<string>CormorantGaramond-Italic-VariableFont_wght.ttf</string>
+		<string>CormorantGaramond-Regular.ttf</string>
+		<string>CormorantGaramond-Light.ttf</string>
+		<string>CormorantGaramond-Italic.ttf</string>
+		<string>CormorantGaramond-LightItalic.ttf</string>
+		<string>CormorantGaramond-BoldItalic.ttf</string>
+		<string>CormorantGaramond-SemiBoldItalic.ttf</string>
 	</array>
 </dict>
 </plist>
