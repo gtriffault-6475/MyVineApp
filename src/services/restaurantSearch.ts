@@ -25,6 +25,7 @@ export async function deleteFoursquareKey(): Promise<void> {
 
 export async function searchRestaurants(
   query: string,
+  coords?: { latitude: number; longitude: number } | null,
   signal?: AbortSignal,
 ): Promise<RestaurantSuggestion[]> {
   const apiKey = await getFoursquareKey();
@@ -34,6 +35,9 @@ export async function searchRestaurants(
     query: query.trim(),
     limit: '5',
   });
+  if (coords) {
+    params.set('ll', `${coords.latitude},${coords.longitude}`);
+  }
 
   const response = await fetch(`${SEARCH_URL}?${params}`, {
     headers: {

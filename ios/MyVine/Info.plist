@@ -34,7 +34,7 @@
 	<key>NSCameraUsageDescription</key>
 	<string>Pour photographier les étiquettes de vin</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string/>
+	<string>Pour trouver les restaurants à proximité</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Pour choisir une photo d'étiquette de vin</string>
 	<key>UILaunchStoryboardName</key>

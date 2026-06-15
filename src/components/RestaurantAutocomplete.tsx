@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import {
   View,
   Text,
@@ -24,6 +24,17 @@ export function RestaurantAutocomplete({ value, onChangeText, containerStyle }: 
   const [loading, setLoading] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const abortRef = useRef<AbortController | null>(null);
+  const coordsRef = useRef<{ latitude: number; longitude: number } | null>(null);
+
+  useEffect(() => {
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        coordsRef.current = { latitude: pos.coords.latitude, longitude: pos.coords.longitude };
+      },
+      () => { coordsRef.current = null; },
+      { timeout: 5000, maximumAge: 300000 },
+    );
+  }, []);
 
   const handleChange = useCallback((text: string) => {
     onChangeText(text);
@@ -41,7 +52,7 @@ export function RestaurantAutocomplete({ value, onChangeText, containerStyle }: 
       abortRef.current = new AbortController();
       setLoading(true);
       try {
-        const results = await searchRestaurants(text, abortRef.current.signal);
+        const results = await searchRestaurants(text, coordsRef.current, abortRef.current.signal);
         setSuggestions(results);
       } catch {
         // Silently ignore — network errors, missing API key, user aborted
