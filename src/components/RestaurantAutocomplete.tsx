@@ -27,6 +27,7 @@ export function RestaurantAutocomplete({ value, onChangeText, containerStyle }: 
   const coordsRef = useRef<{ latitude: number; longitude: number } | null>(null);
 
   useEffect(() => {
+    if (!navigator.geolocation?.getCurrentPosition) return;
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         coordsRef.current = { latitude: pos.coords.latitude, longitude: pos.coords.longitude };
