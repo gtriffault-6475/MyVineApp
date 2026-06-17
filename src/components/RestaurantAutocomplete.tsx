@@ -8,6 +8,7 @@ import {
   StyleSheet,
   ViewStyle,
 } from 'react-native';
+import Geolocation from '@react-native-community/geolocation';
 import { searchRestaurants, type RestaurantSuggestion } from '@/services/restaurantSearch';
 import { spacing, font, radius } from './ui/tokens';
 import { useTheme } from '@/context/ThemeContext';
@@ -27,8 +28,8 @@ export function RestaurantAutocomplete({ value, onChangeText, containerStyle }: 
   const coordsRef = useRef<{ latitude: number; longitude: number } | null>(null);
 
   useEffect(() => {
-    if (!navigator.geolocation?.getCurrentPosition) return;
-    navigator.geolocation.getCurrentPosition(
+    Geolocation.requestAuthorization();
+    Geolocation.getCurrentPosition(
       (pos) => {
         coordsRef.current = { latitude: pos.coords.latitude, longitude: pos.coords.longitude };
       },
