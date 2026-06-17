@@ -30,17 +30,20 @@ export async function searchRestaurants(
   const apiKey = await getFoursquareKey();
   if (!apiKey || !query.trim()) return [];
 
-  const params = new URLSearchParams({
+  const paramObj: Record<string, string> = {
     query: query.trim(),
     limit: '8',
-    categories: '13065,13032,13070', // Restaurant, Bar, Wine Bar
-  });
+    categories: '13065,13032,13070',
+  };
   if (coords) {
-    params.set('ll', `${coords.latitude},${coords.longitude}`);
-    params.set('radius', '5000');
+    paramObj.ll = `${coords.latitude},${coords.longitude}`;
+    paramObj.radius = '5000';
   }
+  const queryString = Object.entries(paramObj)
+    .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
+    .join('&');
 
-  const response = await fetch(`${SEARCH_URL}?${params}`, {
+  const response = await fetch(`${SEARCH_URL}?${queryString}`, {
     headers: {
       Authorization: apiKey, // FSQ3 keys: no Bearer prefix
       Accept: 'application/json',
