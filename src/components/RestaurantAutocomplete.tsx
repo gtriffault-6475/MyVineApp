@@ -71,8 +71,10 @@ export function RestaurantAutocomplete({ value, onChangeText, containerStyle }: 
           } else if (e.message.includes('FSQ_')) {
             setError(`Erreur API Foursquare (${e.message})`);
           } else {
-            setError('Erreur réseau — vérifiez votre connexion');
+            setError(`Erreur: ${e.message}`);
           }
+        } else {
+          setError(`Erreur: ${String(e)}`);
         }
       } finally {
         setLoading(false);
