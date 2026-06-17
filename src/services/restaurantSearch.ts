@@ -49,7 +49,7 @@ export async function searchRestaurants(
   });
 
   if (!response.ok) {
-    return [];
+    throw new Error(`FSQ_${response.status}`);
   }
 
   const data = await response.json() as {

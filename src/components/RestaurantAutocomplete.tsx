@@ -23,6 +23,7 @@ export function RestaurantAutocomplete({ value, onChangeText, containerStyle }: 
   const { colors, shadow } = useTheme();
   const [suggestions, setSuggestions] = useState<RestaurantSuggestion[]>([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const abortRef = useRef<AbortController | null>(null);
   const coordsRef = useRef<{ latitude: number; longitude: number } | null>(null);
@@ -46,6 +47,7 @@ export function RestaurantAutocomplete({ value, onChangeText, containerStyle }: 
 
     if (text.trim().length < 2) {
       setSuggestions([]);
+      setError(null);
       setLoading(false);
       return;
     }
@@ -53,11 +55,25 @@ export function RestaurantAutocomplete({ value, onChangeText, containerStyle }: 
     debounceRef.current = setTimeout(async () => {
       abortRef.current = new AbortController();
       setLoading(true);
+      setError(null);
       try {
         const results = await searchRestaurants(text, coordsRef.current, abortRef.current.signal);
         setSuggestions(results);
-      } catch {
-        // Silently ignore — network errors, missing API key, user aborted
+        if (results.length === 0) setError('Aucun restaurant trouvé');
+      } catch (e: unknown) {
+        if (e instanceof Error && e.name === 'AbortError') return;
+        setSuggestions([]);
+        if (e instanceof Error) {
+          if (e.message.includes('FSQ_401') || e.message.includes('FSQ_403')) {
+            setError('Clé API invalide — vérifiez dans Réglages');
+          } else if (e.message.includes('FSQ_429')) {
+            setError('Quota API dépassé (1 000 req/jour)');
+          } else if (e.message.includes('FSQ_')) {
+            setError(`Erreur API Foursquare (${e.message})`);
+          } else {
+            setError('Erreur réseau — vérifiez votre connexion');
+          }
+        }
       } finally {
         setLoading(false);
       }
@@ -91,6 +107,10 @@ export function RestaurantAutocomplete({ value, onChangeText, containerStyle }: 
           <ActivityIndicator size="small" color={colors.textMuted} style={styles.spinner} />
         )}
       </View>
+
+      {error && !loading && (
+        <Text style={[styles.errorText, { color: colors.error }]}>{error}</Text>
+      )}
 
       {suggestions.length > 0 && (
         <View style={[styles.dropdown, { backgroundColor: colors.white, borderColor: colors.border }, shadow.md]}>
@@ -161,5 +181,10 @@ const styles = StyleSheet.create({
   suggestionAddress: {
     fontSize: font.sizeSm,
     marginTop: 2,
+  },
+  errorText: {
+    fontSize: font.sizeSm,
+    marginTop: spacing.xs,
+    paddingHorizontal: spacing.xs,
   },
 });
