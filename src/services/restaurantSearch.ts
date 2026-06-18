@@ -1,7 +1,8 @@
 import * as Keychain from 'react-native-keychain';
 
 const KEYCHAIN_SERVICE = 'myvineapp-foursquare';
-const SEARCH_URL = 'https://api.foursquare.com/v3/places/search';
+const SEARCH_URL = 'https://places-api.foursquare.com/places/search';
+const FSQ_API_VERSION = '2024-06-01';
 
 export interface RestaurantSuggestion {
   id: string;
@@ -33,7 +34,6 @@ export async function searchRestaurants(
   const paramObj: Record<string, string> = {
     query: query.trim(),
     limit: '8',
-    categories: '13065,13032,13070',
   };
   if (coords) {
     paramObj.ll = `${coords.latitude},${coords.longitude}`;
@@ -45,7 +45,8 @@ export async function searchRestaurants(
 
   const response = await fetch(`${SEARCH_URL}?${queryString}`, {
     headers: {
-      Authorization: apiKey, // FSQ3 keys: no Bearer prefix
+      Authorization: `Bearer ${apiKey}`,
+      'X-Places-Api-Version': FSQ_API_VERSION,
       Accept: 'application/json',
     },
     signal,
