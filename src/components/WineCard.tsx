@@ -17,8 +17,11 @@ interface Props {
   onPress: () => void;
 }
 
+const CARD_HEIGHT = 74;
+const THUMB_WIDTH = 66;
+
 export function WineCard({ wine, onPress }: Props) {
-  const { colors, shadow, isDark, serifFontWine } = useTheme();
+  const { colors, shadow, serifFontWine } = useTheme();
 
   const photoUri = wine.photo_uri
     ? `file://${RNFS.DocumentDirectoryPath}/${wine.photo_uri}`
@@ -33,7 +36,6 @@ export function WineCard({ wine, onPress }: Props) {
     ? new Date(wine.drunk_at).toLocaleDateString('fr-FR', {
         day: 'numeric',
         month: 'short',
-        year: 'numeric',
       })
     : '';
 
@@ -73,15 +75,20 @@ export function WineCard({ wine, onPress }: Props) {
 
         <View style={styles.footer}>
           {wine.score !== null ? (
-            <StarRating score={wine.score} readOnly size={14} />
+            <StarRating score={wine.score} readOnly size={12} />
           ) : (
-            <Text style={[styles.noScore, { color: colors.textLight }]}>Non noté</Text>
+            <Text style={[styles.noScore, { color: colors.textLight }]}>—</Text>
           )}
-          <View style={styles.meta}>
-            <Text style={[styles.metaText, { color: colors.textLight }]}>{locationLabel}</Text>
-            <Text style={[styles.dot, { color: colors.textLight }]}>·</Text>
-            <Text style={[styles.metaText, { color: colors.textLight }]}>{drunkDate}</Text>
-          </View>
+          <Text style={[styles.dot, { color: colors.textLight }]}>·</Text>
+          <Text style={[styles.metaText, { color: colors.textLight }]} numberOfLines={1}>
+            {locationLabel}
+          </Text>
+          {drunkDate ? (
+            <>
+              <Text style={[styles.dot, { color: colors.textLight }]}>·</Text>
+              <Text style={[styles.metaText, { color: colors.textLight }]}>{drunkDate}</Text>
+            </>
+          ) : null}
         </View>
       </View>
     </TouchableOpacity>
@@ -90,16 +97,17 @@ export function WineCard({ wine, onPress }: Props) {
 
 const styles = StyleSheet.create({
   card: {
+    height: CARD_HEIGHT,
     flexDirection: 'row',
     borderRadius: radius.lg,
     marginHorizontal: spacing.lg,
-    marginVertical: spacing.sm,
+    marginVertical: spacing.xs,
     overflow: 'hidden',
     borderWidth: 1,
   },
   thumb: {
-    width: 80,
-    alignSelf: 'stretch',
+    width: THUMB_WIDTH,
+    height: CARD_HEIGHT,
   },
   thumbImage: {
     width: '100%',
@@ -110,47 +118,43 @@ const styles = StyleSheet.create({
     height: '100%',
     alignItems: 'center',
     justifyContent: 'center',
-    minHeight: 90,
   },
   thumbEmoji: {
-    fontSize: 28,
+    fontSize: 24,
   },
   content: {
     flex: 1,
-    padding: spacing.md,
-    gap: spacing.xs,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    justifyContent: 'space-between',
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.sm,
+    gap: spacing.xs,
   },
   name: {
     flex: 1,
-    fontSize: font.sizeLg,
+    fontSize: font.sizeMd,
     fontWeight: font.weightSemibold,
   },
   buyBadge: {
-    fontSize: 16,
+    fontSize: 14,
   },
   sub: {
     fontSize: font.sizeSm,
   },
   footer: {
-    marginTop: spacing.xs,
-    gap: spacing.xs,
-  },
-  noScore: {
-    fontSize: font.sizeSm,
-    fontStyle: 'italic',
-  },
-  meta: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.xs,
   },
+  noScore: {
+    fontSize: font.sizeSm,
+  },
   metaText: {
     fontSize: font.sizeSm,
+    flexShrink: 1,
   },
   dot: {
     fontSize: font.sizeSm,
