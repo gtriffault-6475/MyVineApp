@@ -2,6 +2,7 @@ import { SQLiteDatabase } from 'react-native-sqlite-storage';
 import {
   CREATE_WINES_TABLE,
   CREATE_CELLAR_TABLE,
+  CREATE_CAVES_TABLE,
   CREATE_INDEXES,
   CREATE_META_TABLE,
   DB_VERSION,
@@ -27,6 +28,9 @@ export async function runMigrations(db: SQLiteDatabase): Promise<void> {
     for (const stmt of indexStatements) {
       await db.executeSql(stmt);
     }
+    await db.executeSql(CREATE_CELLAR_TABLE);
+    await db.executeSql(CREATE_CAVES_TABLE);
+    await db.executeSql(`INSERT INTO caves (name) VALUES ('Ma cave')`);
   }
 
   if (currentVersion >= 1 && currentVersion < 2) {
@@ -36,6 +40,13 @@ export async function runMigrations(db: SQLiteDatabase): Promise<void> {
   if (currentVersion >= 2 && currentVersion < 3) {
     await db.executeSql(CREATE_CELLAR_TABLE);
     await db.executeSql(`ALTER TABLE wines ADD COLUMN cellar_id INTEGER`);
+  }
+
+  if (currentVersion >= 3 && currentVersion < 4) {
+    await db.executeSql(CREATE_CAVES_TABLE);
+    await db.executeSql(`INSERT INTO caves (name) VALUES ('Ma cave')`);
+    await db.executeSql(`ALTER TABLE cellar ADD COLUMN cave_id INTEGER`);
+    await db.executeSql(`UPDATE cellar SET cave_id = 1 WHERE cave_id IS NULL`);
   }
 
   await db.executeSql(

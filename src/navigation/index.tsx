@@ -5,7 +5,8 @@ import { useNavigation, useRoute, NavigatorScreenParams, RouteProp } from '@reac
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useTheme } from '@/context/ThemeContext';
 
-import { CellarScreen } from '@/screens/CellarScreen';
+import { CaveListScreen } from '@/screens/CaveListScreen';
+import { CellarBottlesScreen } from '@/screens/CellarBottlesScreen';
 import { DegustationsScreen } from '@/screens/DegustationsScreen';
 import { SearchScreen } from '@/screens/SearchScreen';
 import { StatsScreen } from '@/screens/StatsScreen';
@@ -31,8 +32,9 @@ export type RootStackParamList = {
   WineDetail: { wineId: number };
   WineEdit: { wineId: number };
   AddWine: { cellarId?: number } | undefined;
+  CellarBottles: { caveId: number; caveName: string };
   CellarDetail: { cellarId: number };
-  AddCellarEntry: { entryId?: number };
+  AddCellarEntry: { entryId?: number; caveId?: number } | undefined;
 };
 
 // ─── Navigators ──────────────────────────────────────────────────────────────
@@ -84,9 +86,9 @@ function MainTabNavigator() {
     >
       <Tab.Screen
         name="CellarTab"
-        component={CellarScreen}
+        component={CaveListScreen}
         options={{
-          title: 'Ma cave',
+          title: 'Mes caves',
           tabBarLabel: 'Cave',
           tabBarIcon: ({ focused, color, size }) => (
             <TabIcon name="albums-outline" nameFilled="albums" focused={focused} color={color} size={size} />
@@ -179,6 +181,11 @@ export function RootNavigator() {
           title: 'Ajouter une dégustation',
           headerLeft: () => null,
         }}
+      />
+      <RootStack.Screen
+        name="CellarBottles"
+        component={CellarBottlesScreen}
+        options={{ title: '' }}
       />
       <RootStack.Screen
         name="CellarDetail"

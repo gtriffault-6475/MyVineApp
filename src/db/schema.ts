@@ -1,5 +1,5 @@
 export const DB_NAME = 'myvine.db';
-export const DB_VERSION = 3;
+export const DB_VERSION = 4;
 
 export const CREATE_WINES_TABLE = `
   CREATE TABLE IF NOT EXISTS wines (
@@ -43,8 +43,18 @@ export const CREATE_CELLAR_TABLE = `
     photo_uri         TEXT,
     archived          INTEGER NOT NULL DEFAULT 0
                       CHECK(archived IN (0,1)),
+    cave_id           INTEGER,
     created_at        TEXT    NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),
     updated_at        TEXT    NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now'))
+  );
+`;
+
+export const CREATE_CAVES_TABLE = `
+  CREATE TABLE IF NOT EXISTS caves (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    name       TEXT    NOT NULL,
+    created_at TEXT    NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),
+    updated_at TEXT    NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now'))
   );
 `;
 

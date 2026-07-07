@@ -14,6 +14,7 @@ export interface CellarEntry {
   notes: string | null;
   photo_uri: string | null;
   archived: 0 | 1;
+  cave_id: number | null;
   created_at: string;
   updated_at: string;
 }
@@ -64,6 +65,7 @@ export function cellarFormToDb(form: CellarForm): Omit<CellarEntry, 'id' | 'crea
     notes: form.notes.trim() || null,
     photo_uri: form.photo_uri,
     archived: 0,
+    cave_id: null,
   };
 }
 

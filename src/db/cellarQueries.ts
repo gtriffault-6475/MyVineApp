@@ -36,13 +36,14 @@ export async function insertCellarEntry(
     `INSERT INTO cellar
       (name, producer, appellation, vintage, quantity, quantity_initial,
        purchase_date, purchase_price, optimal_from, optimal_to,
-       storage_location, notes, photo_uri, archived)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+       storage_location, notes, photo_uri, archived, cave_id)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [
       entry.name, entry.producer, entry.appellation, entry.vintage,
       entry.quantity, entry.quantity_initial, entry.purchase_date,
       entry.purchase_price, entry.optimal_from, entry.optimal_to,
       entry.storage_location, entry.notes, entry.photo_uri, entry.archived,
+      entry.cave_id,
     ]
   );
   return results.insertId;
@@ -59,6 +60,7 @@ export async function updateCellarEntry(
       quantity = ?, quantity_initial = ?, purchase_date = ?,
       purchase_price = ?, optimal_from = ?, optimal_to = ?,
       storage_location = ?, notes = ?, photo_uri = ?, archived = ?,
+      cave_id = ?,
       updated_at = strftime('%Y-%m-%dT%H:%M:%fZ','now')
      WHERE id = ?`,
     [
@@ -66,6 +68,7 @@ export async function updateCellarEntry(
       entry.quantity, entry.quantity_initial, entry.purchase_date,
       entry.purchase_price, entry.optimal_from, entry.optimal_to,
       entry.storage_location, entry.notes, entry.photo_uri, entry.archived,
+      entry.cave_id,
       id,
     ]
   );

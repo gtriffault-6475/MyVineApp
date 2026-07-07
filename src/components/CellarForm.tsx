@@ -31,6 +31,7 @@ interface Props {
   submitting?: boolean;
   submitLabel?: string;
   onCancel: () => void;
+  headerSlot?: React.ReactNode;
 }
 
 export function CellarForm({
@@ -41,6 +42,7 @@ export function CellarForm({
   submitting,
   submitLabel = 'Enregistrer',
   onCancel,
+  headerSlot,
 }: Props) {
   const { colors } = useTheme();
   const [form, setForm] = useState<CellarFormType>(initialForm);
@@ -98,6 +100,8 @@ export function CellarForm({
         showsVerticalScrollIndicator={false}
       >
         <LabelPhoto uri={photoFullUri} onPress={onPickPhoto} height={180} />
+
+        {headerSlot}
 
         <View style={styles.section}>
           <TextInput
