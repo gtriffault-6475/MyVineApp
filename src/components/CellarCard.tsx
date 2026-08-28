@@ -18,6 +18,9 @@ interface Props {
   onPress: () => void;
 }
 
+const CARD_HEIGHT = 74;
+const THUMB_WIDTH = 66;
+
 export function CellarCard({ entry, onPress }: Props) {
   const { colors, shadow, serifFontWine } = useTheme();
 
@@ -72,12 +75,13 @@ export function CellarCard({ entry, onPress }: Props) {
 
         <View style={styles.footer}>
           {apogeeLabel ? (
-            <View style={[styles.apogeeChip, { borderColor: apogeeColors[status] }]}>
-              <Text style={[styles.apogeeText, { color: apogeeColors[status] }]}>
-                {APOGEE_ICONS[status] ? `${APOGEE_ICONS[status]} ` : ''}
-                {apogeeLabel}
-              </Text>
-            </View>
+            <Text style={[styles.apogeeText, { color: apogeeColors[status] }]} numberOfLines={1}>
+              {APOGEE_ICONS[status] ? `${APOGEE_ICONS[status]} ` : ''}
+              {apogeeLabel}
+            </Text>
+          ) : null}
+          {apogeeLabel && entry.storage_location ? (
+            <Text style={[styles.dot, { color: colors.textLight }]}>·</Text>
           ) : null}
           {entry.storage_location ? (
             <Text style={[styles.location, { color: colors.textLight }]} numberOfLines={1}>
@@ -92,16 +96,17 @@ export function CellarCard({ entry, onPress }: Props) {
 
 const styles = StyleSheet.create({
   card: {
+    height: CARD_HEIGHT,
     flexDirection: 'row',
     borderRadius: radius.lg,
     marginHorizontal: spacing.lg,
-    marginVertical: spacing.sm,
+    marginVertical: spacing.xs,
     overflow: 'hidden',
     borderWidth: 1,
   },
   thumb: {
-    width: 80,
-    alignSelf: 'stretch',
+    width: THUMB_WIDTH,
+    height: CARD_HEIGHT,
   },
   thumbImage: {
     width: '100%',
@@ -112,15 +117,15 @@ const styles = StyleSheet.create({
     height: '100%',
     alignItems: 'center',
     justifyContent: 'center',
-    minHeight: 90,
   },
   thumbEmoji: {
-    fontSize: 28,
+    fontSize: 24,
   },
   content: {
     flex: 1,
-    padding: spacing.md,
-    gap: spacing.xs,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    justifyContent: 'space-between',
   },
   header: {
     flexDirection: 'row',
@@ -129,13 +134,13 @@ const styles = StyleSheet.create({
   },
   name: {
     flex: 1,
-    fontSize: font.sizeLg,
+    fontSize: font.sizeMd,
     fontWeight: font.weightSemibold,
   },
   qtyBadge: {
     borderRadius: radius.full,
-    minWidth: 26,
-    height: 26,
+    minWidth: 22,
+    height: 22,
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: spacing.sm,
@@ -148,23 +153,20 @@ const styles = StyleSheet.create({
     fontSize: font.sizeSm,
   },
   footer: {
-    marginTop: spacing.xs,
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.xs,
     alignItems: 'center',
-  },
-  apogeeChip: {
-    borderWidth: 1,
-    borderRadius: radius.pill,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 2,
+    gap: spacing.xs,
   },
   apogeeText: {
     fontSize: font.sizeSm,
     fontWeight: font.weightMedium,
+    flexShrink: 1,
+  },
+  dot: {
+    fontSize: font.sizeSm,
   },
   location: {
     fontSize: font.sizeSm,
+    flexShrink: 1,
   },
 });
